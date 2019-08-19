@@ -39,20 +39,20 @@ version = "0.1.0"
 
 
 [badges.travis-ci]
-repository = "szymonwieloch/rust-dlopen"
-branch = "master"
+repository = "ahmed-masud/rust-dlopen"
+branch = "develop"
 
 [badges.appveyor]
-repository = "szymonwieloch/rust-dlopen"
-branch = "master"
+repository = "ahmed-masud/rust-dlopen"
+branch = "develop"
 
-[badges.is-it-maintained-open-issues]
-repository = "szymonwieloch/rust-dlopen"
+# [badges.is-it-maintained-open-issues]
+# repository = "szymonwieloch/rust-dlopen"
 
-[badges.codecov]
-repository = "szymonwieloch/rust-dlopen"
-branch = "master"
-service = "github"
+# [badges.codecov]
+# repository = "szymonwieloch/rust-dlopen"
+# branch = "master"
+# service = "github"
 
 [[example]]
 name = "raw"
