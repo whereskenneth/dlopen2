@@ -1,9 +1,10 @@
 # rust-dlopen
 
-[![Travis CI][tcii]][tci] [![Appveyor CI][acii]][aci] [![Crates CI][ccii]][cci]  [![Codedov CI][vcii]][vci]  [![Docs][dcii]][dci]
+[![Travis CI][tcii]][tci] 
 
-[tcii]: https://travis-ci.org/szymonwieloch/rust-dlopen.svg?branch=master
-[tci]: https://travis-ci.org/szymonwieloch/rust-dlopen
+[tcii]: https://travis-ci.org/ahmed-masud/rust-dlopen.svg?branch=develop
+[tci]: https://travis-ci.org/ahmed-masud/rust-dlopen
+<!--
 [acii]: https://ci.appveyor.com/api/projects/status/github/szymonwieloch/rust-dlopen?svg=true
 [aci]: https://ci.appveyor.com/project/szymonwieloch/rust-dlopen
 [ccii]: https://img.shields.io/crates/v/dlopen.svg
@@ -12,6 +13,7 @@
 [vci]: https://codecov.io/gh/szymonwieloch/rust-dlopen
 [dcii]: https://docs.rs/dlopen/badge.svg
 [dci]: https://docs.rs/dlopen
+-->
 
 ## Overview
 
