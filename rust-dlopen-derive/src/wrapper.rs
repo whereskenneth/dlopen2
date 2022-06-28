@@ -1,10 +1,10 @@
 use super::common::{get_fields, has_marker_attr, symbol_name};
-use syn;
-use syn::{BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
+use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
+
 const ALLOW_NULL: &str = "dlopen_allow_null";
 const TRAIT_NAME: &str = "WrapperApi";
 
-pub fn impl_wrapper_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
+pub fn impl_wrapper_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let struct_name = &ast.ident;
     let fields = get_fields(ast, TRAIT_NAME);
     let generics = &ast.generics;
@@ -46,7 +46,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
     q
 }
 
-fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
+fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     let allow_null = has_marker_attr(field, ALLOW_NULL);
     match field.ty {
         Type::BareFn(_) | Type::Reference(_) => {
@@ -64,7 +64,7 @@ fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
     }
 }
 
-fn normal_field(field: &Field) -> syn::export::TokenStream2 {
+fn normal_field(field: &Field) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
     let symbol_name = symbol_name(field);
     quote! {
@@ -74,7 +74,7 @@ fn normal_field(field: &Field) -> syn::export::TokenStream2 {
     }
 }
 
-fn allow_null_field(field: &Field, ptr: &TypePtr) -> syn::export::TokenStream2 {
+fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
     let symbol_name = symbol_name(field);
     let null_fun = match ptr.mutability {
@@ -94,7 +94,7 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> syn::export::TokenStream2 {
     }
 }
 
-fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
+fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
     let ident = &field.ident;
     match field.ty {
         Type::BareFn(ref fun) => {
@@ -149,7 +149,7 @@ fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
     }
 }
 
-fn fun_arg_to_tokens(arg: &BareFnArg, function_name: &str) -> syn::export::TokenStream2 {
+fn fun_arg_to_tokens(arg: &BareFnArg, function_name: &str) -> proc_macro2::TokenStream {
     let arg_name = match arg.name {
         Some(ref val) => &val.0,
         None => panic!("Function {} has an unnamed argument.", function_name),

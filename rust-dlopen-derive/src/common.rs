@@ -18,11 +18,13 @@ pub fn find_str_attr_val(field: &Field, attr_name: &str) -> Option<String> {
     for attr in field.attrs.iter() {
         match attr.parse_meta() {
             Ok(Meta::NameValue(ref meta)) => {
-                if meta.ident == attr_name {
-                    return match &meta.lit {
-                        &Lit::Str(ref val, ..) => Some(val.value()),
-                        _ => panic!("{} attribute must be a string", attr_name),
-                    };
+                if let Some(ident) = meta.path.get_ident() {
+                    if ident == attr_name {
+                        return match meta.lit {
+                            Lit::Str(ref val, ..) => Some(val.value()),
+                            _ => panic!("{} attribute must be a string", attr_name),
+                        };
+                    }
                 }
             }
             _ => continue,
@@ -34,9 +36,9 @@ pub fn find_str_attr_val(field: &Field, attr_name: &str) -> Option<String> {
 pub fn has_marker_attr(field: &Field, attr_name: &str) -> bool {
     for attr in field.attrs.iter() {
         match attr.parse_meta() {
-            Ok(Meta::Word(ref val)) => {
-                if val == attr_name {
-                    return true;
+            Ok(Meta::Path(val)) => {
+                if let Some(ident) = val.get_ident() {
+                    return ident == attr_name;
                 }
             }
             _ => continue,
@@ -52,9 +54,9 @@ pub fn get_fields<'a>(ast: &'a DeriveInput, trait_name: &str) -> &'a FieldsNamed
         }
         Data::Struct(ref val) => val,
     };
-    match &vd.fields {
-        &Fields::Named(ref f) => f,
-        &Fields::Unnamed(_) | &Fields::Unit => {
+    match vd.fields {
+        Fields::Named(ref f) => f,
+        Fields::Unnamed(_) | Fields::Unit => {
             panic!("{} can be only implemented for structures", trait_name)
         }
     }
