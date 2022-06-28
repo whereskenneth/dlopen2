@@ -15,16 +15,13 @@ pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
             }
         }
     };
-
-    //panic!("{}", q.as_str());
+    
     q
 }
 
 fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
     let symbol_name = symbol_name(field);
-
-    //panic!("type_name = {}, {:?}", field_type_name, field);
 
     quote! {
         #field_name: {

@@ -22,14 +22,11 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
         }
     };
 
-    //panic!("{}", q.as_str());
     q
 }
 
 fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     let field_name = &field.ident;
-
-    //panic!("type_name = {}, {:?}", field_type_name, field);
 
     quote! {
         #field_name: ::dlopen::wrapper::WrapperApi::load(&lib)?
