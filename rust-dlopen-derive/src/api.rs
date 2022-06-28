@@ -1,6 +1,6 @@
-use syn::{Field, DeriveInput};
-use syn;
 use super::common::{get_fields, symbol_name};
+use syn;
+use syn::{DeriveInput, Field};
 
 pub fn impl_library_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
     let name = &ast.ident;
@@ -21,7 +21,6 @@ pub fn impl_library_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
     q
 }
 
-
 fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
     let field_name = &field.ident;
     let symbol_name = symbol_name(field);
@@ -36,5 +35,4 @@ fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
             ::dlopen::symbor::FromRawResult::from_raw_result(raw_result)?
         }
     }
-
 }

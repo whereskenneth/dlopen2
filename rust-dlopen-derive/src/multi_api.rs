@@ -1,6 +1,6 @@
-use syn::{Field, DeriveInput};
+use super::common::get_fields;
 use syn;
-use super::common::{get_fields};
+use syn::{DeriveInput, Field};
 
 const TRATIT_NAME: &str = "WrapperMultiApi";
 
@@ -27,7 +27,6 @@ pub fn impl_wrapper_multi_api(ast: &DeriveInput) -> syn::export::TokenStream2 {
     q
 }
 
-
 fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
     let field_name = &field.ident;
 
@@ -36,5 +35,4 @@ fn field_to_tokens(field: &Field) -> syn::export::TokenStream2 {
     quote! {
         #field_name: ::dlopen::wrapper::WrapperApi::load(&lib)?
     }
-
 }
