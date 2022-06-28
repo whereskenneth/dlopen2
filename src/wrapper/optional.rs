@@ -99,7 +99,7 @@ where
     }
 
     ///Gives access to the optional API - constant version.
-    pub fn optional_mut(&mut self) -> &Option<Optional> {
+    pub fn optional_mut(&mut self) -> &mut Option<Optional> {
         &mut self.optional
     }
 }
