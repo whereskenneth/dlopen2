@@ -58,12 +58,10 @@ fn recursive_find(path: &Path, file_regex: &regex::Regex) -> Option<PathBuf> {
                 None
             }
         }
+    } else if file_regex.is_match(path.file_name().unwrap().to_str().unwrap()) {
+        Some(path.to_path_buf())
     } else {
-        if file_regex.is_match(path.file_name().unwrap().to_str().unwrap()) {
-            Some(path.to_path_buf())
-        } else {
-            None
-        }
+        None
     }
 }
 

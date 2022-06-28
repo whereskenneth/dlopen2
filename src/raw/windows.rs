@@ -1,8 +1,10 @@
+use crate::utils;
+
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
 use std::ffi::{CStr, OsStr, OsString};
 use std::io::{Error as IoError, ErrorKind};
-use std::mem::{size_of, uninitialized};
+use std::mem::size_of;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::ptr::null_mut;
 use std::slice;
@@ -103,9 +105,9 @@ impl ErrorModeGuard {
 
 impl Drop for ErrorModeGuard {
     fn drop(&mut self) {
-        match self {
-            &mut ErrorModeGuard::DoNothing => (),
-            &mut ErrorModeGuard::Process => {
+        match *self {
+            ErrorModeGuard::DoNothing => (),
+            ErrorModeGuard::Process => {
                 //poisoning should never happen
                 let mut lock = SET_ERR_MODE_DATA.lock().expect("Mutex got poisoned");
                 lock.count -= 1;
@@ -113,7 +115,7 @@ impl Drop for ErrorModeGuard {
                     unsafe { SetErrorMode(lock.previous) };
                 }
             }
-            &mut ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
+            ErrorModeGuard::ThreadPreviousValue(previous) => unsafe {
                 SetThreadErrorMode(previous, null_mut());
             },
         }
@@ -183,10 +185,10 @@ pub unsafe fn addr_info_init() {
 pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     let process_handle = GetCurrentProcess();
 
-    //calls to Sym* functions are not thread safe.
-    let mut buffer: [WCHAR; PATH_MAX as usize] = uninitialized();
-    let mut symbol_buffer: [u8; size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()] =
-        uninitialized();
+    // calls to Sym* functions are not thread safe.
+    let mut buffer = utils::maybe_uninit_uninit_array::<WCHAR, {PATH_MAX as usize}>();
+    let mut symbol_buffer =
+        utils::maybe_uninit_uninit_array::<u8, {size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()}>();
     let (module_base, path_len, symbol_info, result) = {
         let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
         let module_base = SymGetModuleBase64(process_handle, addr as u64);
@@ -195,7 +197,7 @@ pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
             return Err(Error::AddrNotMatchingDll(get_win_error()));
         }
 
-        let path_len = GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX);
+        let path_len = GetModuleFileNameW(module_base as HMODULE, buffer[0].as_mut_ptr(), PATH_MAX);
         if path_len == 0 {
             return Err(Error::AddrNotMatchingDll(get_win_error()));
         }
@@ -234,7 +236,7 @@ pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     };
     Ok({
         AddressInfo {
-            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)])
+            dll_path: OsString::from_wide(utils::maybe_uninit_slice_assume_init_ref(&buffer[0..(path_len as usize)]))
                 .to_string_lossy()
                 .into_owned(),
             dll_base_addr: module_base as *const (),

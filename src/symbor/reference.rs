@@ -1,6 +1,6 @@
 use super::super::err::Error;
 use super::from_raw::{FromRawResult, RawResult};
-use std::mem::transmute;
+
 use std::ops::Deref;
 
 ///Safe wrapper around cont reference.
@@ -15,7 +15,7 @@ pub struct Ref<'lib, T: 'lib> {
 impl<'lib, T> Ref<'lib, T> {
     pub fn new(reference: &'lib T) -> Ref<'lib, T> {
         Ref {
-            reference: reference,
+            reference,
         }
     }
 }
@@ -28,7 +28,7 @@ impl<'lib, T> FromRawResult for Ref<'lib, T> {
                     Err(Error::NullSymbol)
                 } else {
                     Ok(Ref {
-                        reference: transmute(*ptr),
+                        reference: &*(*ptr as *const T),
                     })
                 }
             }

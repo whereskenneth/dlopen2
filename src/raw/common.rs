@@ -132,7 +132,7 @@ impl Library {
         }
         let raw = get_sym(self.handle, name)?;
         if raw.is_null() {
-            return Err(Error::NullSymbol);
+            Err(Error::NullSymbol)
         } else {
             Ok(transmute_copy(&raw))
         }
@@ -173,6 +173,12 @@ pub struct AddressInfo {
 ///Obtains information about an address previously loaded from a dynamic load library.
 pub struct AddressInfoObtainer {}
 
+impl Default for AddressInfoObtainer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AddressInfoObtainer {
     pub fn new() -> AddressInfoObtainer {
         unsafe { addr_info_init() };
@@ -193,7 +199,7 @@ impl AddressInfoObtainer {
 
         // now we can obtain information about the symbol - library, base address etc.
         let aio = AddressInfoObtainer::new();
-        let addr_info = aio.obtain(ptr as * const ()).unwrap();
+        let addr_info = unsafe { aio.obtain(ptr as * const ()) }.unwrap();
         println!("Library path: {}", &addr_info.dll_path);
         println!("Library base address: {:?}", addr_info.dll_base_addr);
         if let Some(os) = addr_info.overlapping_symbol{
@@ -204,7 +210,7 @@ impl AddressInfoObtainer {
     }
     ```
     */
-    pub fn obtain(&self, addr: *const ()) -> Result<AddressInfo, Error> {
+    pub unsafe fn obtain(&self, addr: *const ()) -> Result<AddressInfo, Error> {
         addr_info_obtain(addr)
     }
 }

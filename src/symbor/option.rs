@@ -1,7 +1,7 @@
 use super::super::err::Error;
 use super::from_raw::{FromRawResult, RawResult};
 
-impl<'a, T> FromRawResult for Option<T>
+impl<T> FromRawResult for Option<T>
 where
     T: FromRawResult,
 {

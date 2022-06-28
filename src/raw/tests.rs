@@ -23,7 +23,7 @@ const_cstr! {NOT_EXISTING_SYM = "notexisting";}
 fn load_get_close() {
     unsafe {
         let handle = open_lib(EXISTING_LIB.as_ref()).expect("Could not open library");
-        let sym = get_sym(handle, &EXISTING_SYM.as_cstr()).expect("Could not get symbol");
+        let sym = get_sym(handle, EXISTING_SYM.as_cstr()).expect("Could not get symbol");
         assert!(!sym.is_null());
         assert!(close_lib(handle).is_null());
     }

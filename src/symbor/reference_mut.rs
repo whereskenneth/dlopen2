@@ -1,6 +1,6 @@
 use super::super::err::Error;
 use super::from_raw::{FromRawResult, RawResult};
-use std::mem::transmute;
+
 use std::ops::{Deref, DerefMut};
 
 ///Safe wrapper around mutable reference.
@@ -15,7 +15,7 @@ pub struct RefMut<'lib, T: 'lib> {
 impl<'lib, T> RefMut<'lib, T> {
     pub fn new(reference: &'lib mut T) -> RefMut<'lib, T> {
         RefMut {
-            reference: reference,
+            reference,
         }
     }
 }
@@ -28,7 +28,7 @@ impl<'lib, T> FromRawResult for RefMut<'lib, T> {
                     Err(Error::NullSymbol)
                 } else {
                     Ok(RefMut {
-                        reference: transmute(*ptr),
+                        reference: &mut *(*ptr as *mut T),
                     })
                 }
             }

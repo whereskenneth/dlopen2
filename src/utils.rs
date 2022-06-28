@@ -2,7 +2,7 @@
 Utilities for working with dynamic link libraries.
 */
 
-use std::ffi::{OsStr, OsString};
+use std::{ffi::{OsStr, OsString}, mem::MaybeUninit};
 
 //library naming patterns
 /* Naming pattern goes as follows:
@@ -51,4 +51,14 @@ where
     result.push(".");
     result.push(PLATFORM_FILE_EXTENSION);
     result
+}
+
+pub const unsafe fn maybe_uninit_slice_assume_init_ref<T>(slice: &[MaybeUninit<T>]) -> &[T] {
+    &*(slice as *const [MaybeUninit<T>] as *const [T])
+}
+
+pub fn maybe_uninit_uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
+    unsafe {
+        MaybeUninit::<[MaybeUninit<T>; LEN]>::uninit().assume_init()
+    }
 }

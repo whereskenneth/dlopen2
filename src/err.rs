@@ -21,25 +21,14 @@ pub enum Error {
 }
 
 impl ErrorTrait for Error {
-    fn description(&self) -> &str {
+    fn source(&self) -> Option<&(dyn ErrorTrait + 'static)> {
         use self::Error::*;
-        match self {
-            &NullCharacter(_) => "String had a null character",
-            &OpeningLibraryError(_) => "Could not open library",
-            &SymbolGettingError(_) => "Could not obtain symbol from the library",
-            &NullSymbol => "The symbol is NULL",
-            &AddrNotMatchingDll(_) => "Address does not match any dynamic link library",
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn ErrorTrait> {
-        use self::Error::*;
-        match self {
-            &NullCharacter(ref val) => Some(val),
-            &OpeningLibraryError(_)
-            | &SymbolGettingError(_)
-            | &NullSymbol
-            | &AddrNotMatchingDll(_) => None,
+        match *self {
+            NullCharacter(ref val) => Some(val),
+            OpeningLibraryError(_)
+            | SymbolGettingError(_)
+            | NullSymbol
+            | AddrNotMatchingDll(_) => None,
         }
     }
 }
@@ -47,17 +36,13 @@ impl ErrorTrait for Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         use self::Error::*;
-        f.write_str(self.description())?;
+        
         match self {
-            &OpeningLibraryError(ref msg) => {
-                f.write_str(": ")?;
-                msg.fmt(f)
-            }
-            &SymbolGettingError(ref msg) => {
-                f.write_str(": ")?;
-                msg.fmt(f)
-            }
-            &NullSymbol | &NullCharacter(_) | &AddrNotMatchingDll(_) => Ok(()),
+            NullCharacter(_) => write!(f, "String had a null character"),
+            OpeningLibraryError(msg) => write!(f, "Could not open library: {}", msg),
+            SymbolGettingError(msg) => write!(f, "Could not obtain symbol from the library: {}", msg),
+            NullSymbol =>  write!(f, "The symbol is NULL"),
+            AddrNotMatchingDll(_) =>  write!(f, "Address does not match any dynamic link library"),
         }
     }
 }
