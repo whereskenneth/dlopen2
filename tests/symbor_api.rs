@@ -17,7 +17,8 @@ struct Api<'a> {
     pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
     pub rust_i32: Ref<'a, i32>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    #[dlopen_name = "rust_i32_mut"] pub rust_i32_ptr: Symbol<'a, *const i32>,
+    #[dlopen_name = "rust_i32_mut"]
+    pub rust_i32_ptr: Symbol<'a, *const i32>,
     pub c_int: Ref<'a, c_int>,
     pub c_struct: Ref<'a, SomeData>,
     pub rust_str: Ref<'a, &'static str>,

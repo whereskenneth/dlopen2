@@ -1,6 +1,6 @@
-use super::api::WrapperApi;
 use super::super::raw::Library;
 use super::super::Error;
+use super::api::WrapperApi;
 
 impl<T> WrapperApi for Option<T>
 where

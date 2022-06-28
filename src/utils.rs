@@ -2,7 +2,6 @@
 Utilities for working with dynamic link libraries.
 */
 
-
 use std::ffi::{OsStr, OsString};
 
 //library naming patterns

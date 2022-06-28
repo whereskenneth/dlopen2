@@ -17,7 +17,6 @@ const_cstr! {EXISTING_SYM = "GetLastError";}
 const_cstr! {EXISTING_SYM = "cos";}
 const_cstr! {NOT_EXISTING_SYM = "notexisting";}
 
-
 //This is an example of opening and closing a library
 //It's going to work only on Windows but this is what it is supposed to do
 #[test]

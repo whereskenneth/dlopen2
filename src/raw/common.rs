@@ -3,9 +3,15 @@ use std::ffi::{CStr, CString, OsStr};
 
 //choose the right platform implementation here
 #[cfg(unix)]
-use super::unix::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::unix::{
+    addr_info_cleanup, addr_info_init, addr_info_obtain, close_lib, get_sym, open_lib, open_self,
+    Handle,
+};
 #[cfg(windows)]
-use super::windows::{close_lib, get_sym, open_self, open_lib, addr_info_obtain, addr_info_init, addr_info_cleanup, Handle};
+use super::windows::{
+    addr_info_cleanup, addr_info_init, addr_info_obtain, close_lib, get_sym, open_lib, open_self,
+    Handle,
+};
 
 use std::mem::{size_of, transmute_copy};
 
@@ -144,11 +150,11 @@ unsafe impl Send for Library {}
 
 ///Container for information about overlapping symbol from dynamic load library.
 #[derive(Debug)]
-pub struct OverlappingSymbol{
+pub struct OverlappingSymbol {
     ///Overlapping symbol name
     pub name: String,
     /// Overlapping symbol address
-    pub addr: * const ()
+    pub addr: *const (),
 }
 
 /// Container for information about an address obtained from dynamic load library.
@@ -157,21 +163,20 @@ pub struct AddressInfo {
     /// Path to the library that is the source of this symbol.
     pub dll_path: String,
     /// Base address of the library that is the source of this symbol.
-    pub dll_base_addr: * const (),
+    pub dll_base_addr: *const (),
     /// Information about the overlapping symbol from the dynamic load library.
     ///
     /// The information is optional since the given address may not overlap with any symbol.
-    pub overlapping_symbol: Option<OverlappingSymbol>
+    pub overlapping_symbol: Option<OverlappingSymbol>,
 }
 
 ///Obtains information about an address previously loaded from a dynamic load library.
-pub struct AddressInfoObtainer {
-}
+pub struct AddressInfoObtainer {}
 
 impl AddressInfoObtainer {
     pub fn new() -> AddressInfoObtainer {
-        unsafe{addr_info_init()};
-        AddressInfoObtainer{}
+        unsafe { addr_info_init() };
+        AddressInfoObtainer {}
     }
 
     /**
@@ -199,13 +204,13 @@ impl AddressInfoObtainer {
     }
     ```
     */
-    pub fn obtain(&self, addr: * const ()) -> Result<AddressInfo, Error>{
+    pub fn obtain(&self, addr: *const ()) -> Result<AddressInfo, Error> {
         addr_info_obtain(addr)
     }
 }
 
-impl Drop for AddressInfoObtainer{
+impl Drop for AddressInfoObtainer {
     fn drop(&mut self) {
-        unsafe{addr_info_cleanup()}
+        unsafe { addr_info_cleanup() }
     }
 }

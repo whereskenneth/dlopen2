@@ -2,7 +2,7 @@
 extern crate const_cstr;
 extern crate dlopen;
 extern crate libc;
-use dlopen::raw::{Library, AddressInfoObtainer};
+use dlopen::raw::{AddressInfoObtainer, Library};
 use libc::{c_char, c_int};
 use std::ffi::CStr;
 
@@ -31,7 +31,7 @@ fn open_play_close_raw() {
         unsafe { lib.symbol_cstr(const_cstr!("rust_i32_mut").as_cstr()) }.unwrap();
     assert_eq!(42, *rust_i32_mut);
     *rust_i32_mut = 55; //should not crash
-    //for a change use pointer to obtain its value
+                        //for a change use pointer to obtain its value
     let rust_i32_ptr: *const i32 =
         unsafe { lib.symbol_cstr(const_cstr!("rust_i32_mut").as_cstr()) }.unwrap();
     assert_eq!(55, unsafe { *rust_i32_ptr });
@@ -59,15 +59,15 @@ fn open_play_close_raw() {
 }
 
 #[test]
-fn example_address_info(){
+fn example_address_info() {
     let lib_path = example_lib_path();
     let lib = Library::open(&lib_path).expect("Could not open library");
     let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int =
         unsafe { lib.symbol("c_fun_add_two") }.unwrap();
     let aio = AddressInfoObtainer::new();
-    let ai = aio.obtain(c_fun_add_two as * const ()).unwrap();
+    let ai = aio.obtain(c_fun_add_two as *const ()).unwrap();
     assert_eq!(&ai.dll_path, lib_path.to_str().unwrap());
     let os = ai.overlapping_symbol.unwrap();
     assert_eq!(os.name, "c_fun_add_two");
-    assert_eq!(os.addr, c_fun_add_two as * const ())
+    assert_eq!(os.addr, c_fun_add_two as *const ())
 }

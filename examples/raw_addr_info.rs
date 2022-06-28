@@ -2,9 +2,9 @@ extern crate libc;
 
 mod commons;
 
-use commons::{example_lib_path};
-use dlopen::raw::{Library, AddressInfoObtainer};
-use libc::{c_int};
+use commons::example_lib_path;
+use dlopen::raw::{AddressInfoObtainer, Library};
+use libc::c_int;
 
 fn main() {
     let lib_path = example_lib_path();
@@ -12,10 +12,10 @@ fn main() {
     let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int =
         unsafe { lib.symbol("c_fun_add_two") }.unwrap();
     let aio = AddressInfoObtainer::new();
-    let ai = aio.obtain(c_fun_add_two as * const ()).unwrap();
+    let ai = aio.obtain(c_fun_add_two as *const ()).unwrap();
     println!("{:?}", &ai);
     assert_eq!(&ai.dll_path, lib_path.to_str().unwrap());
     let os = ai.overlapping_symbol.unwrap();
     assert_eq!(os.name, "c_fun_add_two");
-    assert_eq!(os.addr, c_fun_add_two as * const ())
+    assert_eq!(os.addr, c_fun_add_two as *const ())
 }

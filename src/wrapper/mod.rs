@@ -78,11 +78,11 @@ and
 */
 
 mod api;
-mod multi_api;
 mod container;
-mod optional;
+mod multi_api;
 mod option;
+mod optional;
 pub use self::api::WrapperApi;
-pub use self::multi_api::WrapperMultiApi;
 pub use self::container::Container;
+pub use self::multi_api::WrapperMultiApi;
 pub use self::optional::OptionalContainer;

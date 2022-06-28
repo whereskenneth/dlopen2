@@ -1,7 +1,7 @@
-use std::ops::{Deref, DerefMut};
-use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
+use super::from_raw::{FromRawResult, RawResult};
 use std::mem::transmute;
+use std::ops::{Deref, DerefMut};
 
 ///Safe wrapper around mutable reference.
 ///
@@ -23,13 +23,15 @@ impl<'lib, T> RefMut<'lib, T> {
 impl<'lib, T> FromRawResult for RefMut<'lib, T> {
     unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
         match raw_result {
-            Ok(ptr) => if ptr.is_null() {
-                Err(Error::NullSymbol)
-            } else {
-                Ok(RefMut {
-                    reference: transmute(*ptr),
-                })
-            },
+            Ok(ptr) => {
+                if ptr.is_null() {
+                    Err(Error::NullSymbol)
+                } else {
+                    Ok(RefMut {
+                        reference: transmute(*ptr),
+                    })
+                }
+            }
             Err(err) => Err(err),
         }
     }

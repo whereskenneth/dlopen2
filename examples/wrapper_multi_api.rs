@@ -4,9 +4,8 @@ extern crate dlopen_derive;
 extern crate libc;
 mod commons;
 use commons::example_lib_path;
-use libc::c_int;
 use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
-
+use libc::c_int;
 
 //Define 3 APIs:
 

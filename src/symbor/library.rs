@@ -1,8 +1,8 @@
-use std::ffi::CStr;
-use super::symbol::Symbol;
+use super::super::raw::Library as RawLib;
 use super::ptr_or_null::PtrOrNull;
 use super::ptr_or_null_mut::PtrOrNullMut;
-use super::super::raw::Library as RawLib;
+use super::symbol::Symbol;
+use std::ffi::CStr;
 use std::ffi::{CString, OsStr};
 use std::ptr::{null, null_mut};
 

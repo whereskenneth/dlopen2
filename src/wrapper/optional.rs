@@ -1,8 +1,8 @@
 use super::super::raw::Library;
 use super::super::Error;
-use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
 use std::ffi::OsStr;
+use std::ops::{Deref, DerefMut};
 
 /**
 Container for a library handle and both obligatory and optional APIs inside one structure.

@@ -53,8 +53,7 @@ fn main() {
         unsafe { lib.symbol_cstr(const_cstr!("c_struct").as_cstr()) }.unwrap();
     println!(
         "c struct first: {}, second:{}",
-        c_struct.first,
-        c_struct.second
+        c_struct.first, c_struct.second
     );
 
     //let's play with strings

@@ -22,16 +22,14 @@ fn main(){
 ```
 */
 
-
-
 //!
 
 mod common;
+#[cfg(test)]
+mod tests;
 #[cfg(unix)]
 mod unix;
 #[cfg(windows)]
 mod windows;
-#[cfg(test)]
-mod tests;
 
-pub use self::common::{Library, AddressInfo, OverlappingSymbol, AddressInfoObtainer};
+pub use self::common::{AddressInfo, AddressInfoObtainer, Library, OverlappingSymbol};

@@ -2,9 +2,9 @@ extern crate dlopen;
 extern crate libc;
 extern crate regex;
 use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
+use libc::c_int;
 use std::env;
 use std::path::PathBuf;
-use libc::c_int;
 
 //Rust when building dependencies adds some weird numbers to file names
 // find the file using this pattern:
@@ -12,15 +12,14 @@ use libc::c_int;
 
 use serde::Deserialize;
 #[derive(Deserialize)]
-struct Manifest  {
+struct Manifest {
     workspace_root: String,
 }
 
 pub fn example_lib_path() -> PathBuf {
     let file_pattern = format!(
         r"{}example.*\.{}",
-        PLATFORM_FILE_PREFIX,
-        PLATFORM_FILE_EXTENSION
+        PLATFORM_FILE_PREFIX, PLATFORM_FILE_EXTENSION
     );
     let file_regex = regex::Regex::new(file_pattern.as_ref()).unwrap();
     //build path to the example library that covers most cases

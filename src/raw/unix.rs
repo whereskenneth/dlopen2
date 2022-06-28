@@ -1,12 +1,11 @@
 use super::super::err::Error;
-use std::ffi::{CStr, OsStr};
-use libc::{c_int, c_void,
-    dlclose, dlerror, dlopen, dlsym, dladdr,
-    Dl_info, RTLD_LAZY, RTLD_LOCAL
+use libc::{
+    c_int, c_void, dladdr, dlclose, dlerror, dlopen, dlsym, Dl_info, RTLD_LAZY, RTLD_LOCAL,
 };
-use std::ptr::{null, null_mut};
-use std::os::unix::ffi::OsStrExt;
+use std::ffi::{CStr, OsStr};
 use std::io::{Error as IoError, ErrorKind};
+use std::os::unix::ffi::OsStrExt;
+use std::ptr::{null, null_mut};
 // use std::mem::uninitialized;
 use super::common::{AddressInfo, OverlappingSymbol};
 
@@ -86,43 +85,41 @@ pub unsafe fn addr_info_init() {}
 #[inline]
 pub unsafe fn addr_info_cleanup() {}
 
-
 use std::mem::MaybeUninit;
 #[inline]
-pub fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>
-{
+pub fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     // let mut dlinfo: Dl_info = unsafe{uninitialized()};
     let mut dlinfo = MaybeUninit::<Dl_info>::uninit();
-    let result = unsafe {
-        dladdr(addr as * const c_void, dlinfo.as_mut_ptr())
-    };
+    let result = unsafe { dladdr(addr as *const c_void, dlinfo.as_mut_ptr()) };
     if result == 0 {
-        Err(Error::AddrNotMatchingDll(
-            IoError::new(ErrorKind::NotFound, String::new())))
+        Err(Error::AddrNotMatchingDll(IoError::new(
+            ErrorKind::NotFound,
+            String::new(),
+        )))
     } else {
         let dlinfo = unsafe { dlinfo.assume_init() };
-        let os = if dlinfo.dli_saddr.is_null()
-                 || dlinfo.dli_sname.is_null() {
+        let os = if dlinfo.dli_saddr.is_null() || dlinfo.dli_sname.is_null() {
             None
         } else {
-            Some(OverlappingSymbol{
-                addr: dlinfo.dli_saddr as * const (),
-                name: unsafe { 
+            Some(OverlappingSymbol {
+                addr: dlinfo.dli_saddr as *const (),
+                name: unsafe {
                     CStr::from_ptr(dlinfo.dli_sname)
-                        .to_string_lossy().into_owned()
+                        .to_string_lossy()
+                        .into_owned()
                 },
             })
         };
-        Ok(AddressInfo{
-            dll_path: unsafe { 
+        Ok(AddressInfo {
+            dll_path: unsafe {
                 CStr::from_ptr(dlinfo.dli_fname)
-                    .to_string_lossy().into_owned()
+                    .to_string_lossy()
+                    .into_owned()
             },
-            dll_base_addr: dlinfo.dli_fbase as * const (),
-            overlapping_symbol: os
+            dll_base_addr: dlinfo.dli_fbase as *const (),
+            overlapping_symbol: os,
         })
     }
-
 }
 
 #[inline]

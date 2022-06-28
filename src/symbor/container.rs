@@ -1,9 +1,9 @@
+use super::super::Error;
 use super::api::SymBorApi;
 use super::Library;
+use std::ffi::OsStr;
 use std::mem::transmute;
 use std::ops::{Deref, DerefMut};
-use std::ffi::OsStr;
-use super::super::Error;
 
 /**
 Container for both dynamic link library handle and its API.
@@ -41,7 +41,8 @@ pub struct Container<T>
 where
     T: SymBorApi<'static>,
 {
-    #[allow(dead_code)] lib: Library,
+    #[allow(dead_code)]
+    lib: Library,
     api: T,
 }
 

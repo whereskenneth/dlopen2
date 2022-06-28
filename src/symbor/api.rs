@@ -1,5 +1,5 @@
-use super::library::Library;
 use super::super::err::Error;
+use super::library::Library;
 /**
 Trait for automatic loading of symbols from library.
 

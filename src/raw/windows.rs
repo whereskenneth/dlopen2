@@ -1,28 +1,30 @@
-use std::os::windows::ffi::{OsStrExt, OsStringExt};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::io::{Error as IoError, ErrorKind};
 use super::super::err::Error;
+use super::common::{AddressInfo, OverlappingSymbol};
+use std::ffi::{CStr, OsStr, OsString};
+use std::io::{Error as IoError, ErrorKind};
+use std::mem::{size_of, uninitialized};
+use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::ptr::null_mut;
 use std::slice;
-use std::ffi::{CStr, OsStr, OsString};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
-use super::common::{AddressInfo, OverlappingSymbol};
-use winapi::um::winnt::WCHAR;
-use winapi::shared::minwindef::{HMODULE, DWORD, TRUE};
 use winapi::shared::basetsd::DWORD64;
-use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED};
-use winapi::um::libloaderapi::{GetProcAddress, GetModuleHandleExW, LoadLibraryW, GetModuleFileNameW, FreeLibrary};
-use winapi::um::errhandlingapi::{SetThreadErrorMode, GetLastError, SetErrorMode};
-use winapi::um::dbghelp::{SymGetModuleBase64, SymFromAddrW, SYMBOL_INFOW, SymInitializeW, SymCleanup};
+use winapi::shared::minwindef::{DWORD, HMODULE, TRUE};
+use winapi::shared::winerror::ERROR_CALL_NOT_IMPLEMENTED;
+use winapi::um::dbghelp::{
+    SymCleanup, SymFromAddrW, SymGetModuleBase64, SymInitializeW, SYMBOL_INFOW,
+};
+use winapi::um::errhandlingapi::{GetLastError, SetErrorMode, SetThreadErrorMode};
+use winapi::um::libloaderapi::{
+    FreeLibrary, GetModuleFileNameW, GetModuleHandleExW, GetProcAddress, LoadLibraryW,
+};
 use winapi::um::processthreadsapi::GetCurrentProcess;
-use std::mem::{uninitialized, size_of};
-
+use winapi::um::winnt::WCHAR;
 
 static USE_ERRORMODE: AtomicBool = AtomicBool::new(false);
 
 const PATH_MAX: DWORD = 256;
-const MAX_SYMBOL_LEN:usize = 256;
-
+const MAX_SYMBOL_LEN: usize = 256;
 
 struct SetErrorModeData {
     pub count: u32,
@@ -30,13 +32,12 @@ struct SetErrorModeData {
 }
 
 lazy_static! {
-    static ref SET_ERR_MODE_DATA: Mutex<SetErrorModeData> = Mutex::new( SetErrorModeData{
-    count: 0,
-    previous: 0
+    static ref SET_ERR_MODE_DATA: Mutex<SetErrorModeData> = Mutex::new(SetErrorModeData {
+        count: 0,
+        previous: 0
     });
-	static ref OBTAINERS_COUNT : Mutex<usize> = Mutex::new(0);
+    static ref OBTAINERS_COUNT: Mutex<usize> = Mutex::new(0);
 }
-
 
 pub type Handle = HMODULE;
 
@@ -167,81 +168,90 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 }
 
 #[inline]
-pub unsafe fn addr_info_init(){
-	//calls to Sym* functions are not thread safe.
-	let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
-	if *lock == 0 {
-		let process_handle = GetCurrentProcess();
-		let result = SymInitializeW(process_handle, null_mut(), TRUE);
-		assert_eq!(result, TRUE);
-	}
-	*lock += 1;
+pub unsafe fn addr_info_init() {
+    //calls to Sym* functions are not thread safe.
+    let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
+    if *lock == 0 {
+        let process_handle = GetCurrentProcess();
+        let result = SymInitializeW(process_handle, null_mut(), TRUE);
+        assert_eq!(result, TRUE);
+    }
+    *lock += 1;
 }
 
 #[inline]
-pub unsafe fn addr_info_obtain(addr: * const ()) -> Result<AddressInfo, Error>{
-    
-	let process_handle = GetCurrentProcess();
-	
-	//calls to Sym* functions are not thread safe.
-	let mut buffer: [WCHAR; PATH_MAX as usize] = uninitialized();
-	let mut symbol_buffer: [u8; size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()] = uninitialized();
-	let (module_base, path_len, symbol_info, result) = {
-		let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
-		let module_base = SymGetModuleBase64(process_handle, addr as u64);
-	
-		if module_base == 0 {
-			return Err(Error::AddrNotMatchingDll(get_win_error()));
-		}
-		
-	
-		let path_len = GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX);		
-		if path_len == 0 {
-			return Err(Error::AddrNotMatchingDll(get_win_error()));
-		}
-		let symbol_info: * mut SYMBOL_INFOW = symbol_buffer.as_mut_ptr() as  * mut SYMBOL_INFOW;
-		
-		(*symbol_info).SizeOfStruct = size_of::<SYMBOL_INFOW>() as DWORD;
-		(*symbol_info).MaxNameLen = MAX_SYMBOL_LEN as DWORD;
-		let mut displacement:DWORD64 = 0;
-		let result = SymFromAddrW(process_handle, addr as DWORD64, &mut displacement, symbol_info);
-		(module_base, path_len, symbol_info, result)
-	};
-	
-	let os = if result == TRUE {
-		let name_len = (*symbol_info).NameLen as usize;
-		let name_slice = slice::from_raw_parts((*symbol_info).Name.as_ptr(), name_len);
-		let name = OsString::from_wide(name_slice).to_string_lossy().into_owned();
-		//winapi doesn't have implementation of the SymSetOptions() for now
-		//we need to manually strip off the namespace of the symbol.
-		let name = match name.find("::"){
-			None => name,
-			Some(idx) => name[idx +2 ..].to_string()
-		};
-		Some(OverlappingSymbol{
-		name,
-		addr // on Windows there is no overlappping, just a straight match
-		})
-	} else {None};
+pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
+    let process_handle = GetCurrentProcess();
+
+    //calls to Sym* functions are not thread safe.
+    let mut buffer: [WCHAR; PATH_MAX as usize] = uninitialized();
+    let mut symbol_buffer: [u8; size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()] =
+        uninitialized();
+    let (module_base, path_len, symbol_info, result) = {
+        let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
+        let module_base = SymGetModuleBase64(process_handle, addr as u64);
+
+        if module_base == 0 {
+            return Err(Error::AddrNotMatchingDll(get_win_error()));
+        }
+
+        let path_len = GetModuleFileNameW(module_base as HMODULE, buffer.as_mut_ptr(), PATH_MAX);
+        if path_len == 0 {
+            return Err(Error::AddrNotMatchingDll(get_win_error()));
+        }
+        let symbol_info: *mut SYMBOL_INFOW = symbol_buffer.as_mut_ptr() as *mut SYMBOL_INFOW;
+
+        (*symbol_info).SizeOfStruct = size_of::<SYMBOL_INFOW>() as DWORD;
+        (*symbol_info).MaxNameLen = MAX_SYMBOL_LEN as DWORD;
+        let mut displacement: DWORD64 = 0;
+        let result = SymFromAddrW(
+            process_handle,
+            addr as DWORD64,
+            &mut displacement,
+            symbol_info,
+        );
+        (module_base, path_len, symbol_info, result)
+    };
+
+    let os = if result == TRUE {
+        let name_len = (*symbol_info).NameLen as usize;
+        let name_slice = slice::from_raw_parts((*symbol_info).Name.as_ptr(), name_len);
+        let name = OsString::from_wide(name_slice)
+            .to_string_lossy()
+            .into_owned();
+        //winapi doesn't have implementation of the SymSetOptions() for now
+        //we need to manually strip off the namespace of the symbol.
+        let name = match name.find("::") {
+            None => name,
+            Some(idx) => name[idx + 2..].to_string(),
+        };
+        Some(OverlappingSymbol {
+            name,
+            addr, // on Windows there is no overlappping, just a straight match
+        })
+    } else {
+        None
+    };
     Ok({
-        AddressInfo{
-            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)]).to_string_lossy().into_owned(),
-            dll_base_addr: module_base as * const (),
+        AddressInfo {
+            dll_path: OsString::from_wide(&buffer[0..(path_len as usize)])
+                .to_string_lossy()
+                .into_owned(),
+            dll_base_addr: module_base as *const (),
             overlapping_symbol: os,
         }
     })
-
 }
 
 #[inline]
-pub unsafe fn addr_info_cleanup(){
-	let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
-	*lock -= 1;
-	if *lock == 0 {
-		let process_handle = GetCurrentProcess();
-		let result = SymCleanup(process_handle);
-		assert_eq!(result, TRUE);
-	}
+pub unsafe fn addr_info_cleanup() {
+    let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
+    *lock -= 1;
+    if *lock == 0 {
+        let process_handle = GetCurrentProcess();
+        let result = SymCleanup(process_handle);
+        assert_eq!(result, TRUE);
+    }
 }
 
 #[inline]

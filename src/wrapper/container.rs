@@ -1,8 +1,8 @@
 use super::super::raw::Library;
 use super::super::Error;
-use std::ops::{Deref, DerefMut};
 use super::api::WrapperApi;
 use std::ffi::OsStr;
+use std::ops::{Deref, DerefMut};
 
 /**
 Container for both a dynamic load library handle and its API.

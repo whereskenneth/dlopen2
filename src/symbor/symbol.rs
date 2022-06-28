@@ -1,8 +1,8 @@
-use std::marker::PhantomData;
-use std::ops::{Deref, DerefMut};
-use std::mem::transmute_copy;
-use super::from_raw::{FromRawResult, RawResult};
 use super::super::err::Error;
+use super::from_raw::{FromRawResult, RawResult};
+use std::marker::PhantomData;
+use std::mem::transmute_copy;
+use std::ops::{Deref, DerefMut};
 
 ///Safe wrapper around a symbol obtained from `Library`.
 ///
@@ -27,15 +27,17 @@ impl<'lib, T> Symbol<'lib, T> {
 impl<'lib, T> FromRawResult for Symbol<'lib, T> {
     unsafe fn from_raw_result(raw_result: RawResult) -> Result<Self, Error> {
         match raw_result {
-            Ok(ptr) => if ptr.is_null() {
-                Err(Error::NullSymbol)
-            } else {
-                let raw: *const () = *ptr;
-                Ok(Symbol {
-                    symbol: transmute_copy(&raw),
-                    pd: PhantomData,
-                })
-            },
+            Ok(ptr) => {
+                if ptr.is_null() {
+                    Err(Error::NullSymbol)
+                } else {
+                    let raw: *const () = *ptr;
+                    Ok(Symbol {
+                        symbol: transmute_copy(&raw),
+                        pd: PhantomData,
+                    })
+                }
+            }
             Err(err) => Err(err),
         }
     }

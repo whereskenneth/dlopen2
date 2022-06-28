@@ -130,9 +130,9 @@ extern crate const_cstr;
 #[cfg(test)]
 extern crate serde;
 
+mod err;
 pub mod raw;
 pub mod symbor;
 pub mod utils;
 pub mod wrapper;
-mod err;
 pub use err::Error;

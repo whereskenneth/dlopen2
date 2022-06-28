@@ -1,7 +1,7 @@
+use super::super::err::Error;
+use super::from_raw::{FromRawResult, RawResult};
 use std::marker::PhantomData;
 use std::ops::Deref;
-use super::from_raw::{FromRawResult, RawResult};
-use super::super::err::Error;
 
 ///Safe wrapper around const pointer.
 ///
