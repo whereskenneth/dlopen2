@@ -14,9 +14,7 @@ pub struct RefMut<'lib, T: 'lib> {
 
 impl<'lib, T> RefMut<'lib, T> {
     pub fn new(reference: &'lib mut T) -> RefMut<'lib, T> {
-        RefMut {
-            reference,
-        }
+        RefMut { reference }
     }
 }
 

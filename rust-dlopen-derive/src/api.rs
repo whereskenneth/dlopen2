@@ -15,7 +15,7 @@ pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
             }
         }
     };
-    
+
     q
 }
 

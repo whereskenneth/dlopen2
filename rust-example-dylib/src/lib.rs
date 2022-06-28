@@ -6,8 +6,7 @@
 
 #![allow(non_upper_case_globals)]
 extern crate libc;
-use libc::{c_int, c_char};
-
+use libc::{c_char, c_int};
 
 //FUNCTIONS
 #[no_mangle]
@@ -32,7 +31,7 @@ pub extern "C" fn c_fun_add_two(arg: c_int) -> c_int {
 
 #[allow(unused_variables)]
 #[no_mangle]
-pub extern "C" fn c_fun_variadic(txt: * const c_char) {
+pub extern "C" fn c_fun_variadic(txt: *const c_char) {
     //pretend to be variadic - impossible to do in Rust code
 }
 
@@ -50,11 +49,14 @@ pub static c_int: c_int = 45;
 #[repr(C)]
 pub struct SomeData {
     first: c_int,
-    second: c_int
+    second: c_int,
 }
 
 #[no_mangle]
-pub static c_struct: SomeData = SomeData{first: 1, second: 2};
+pub static c_struct: SomeData = SomeData {
+    first: 1,
+    second: 2,
+};
 
 //STATIC STRINGS
 
@@ -65,9 +67,3 @@ pub static rust_str: &str = "Hello!";
 
 #[no_mangle]
 pub static c_const_char_ptr: [u8; 4] = [b'H', b'i', b'!', 0];
-
-
-
-
-
-

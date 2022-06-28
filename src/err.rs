@@ -25,10 +25,9 @@ impl ErrorTrait for Error {
         use self::Error::*;
         match *self {
             NullCharacter(ref val) => Some(val),
-            OpeningLibraryError(_)
-            | SymbolGettingError(_)
-            | NullSymbol
-            | AddrNotMatchingDll(_) => None,
+            OpeningLibraryError(_) | SymbolGettingError(_) | NullSymbol | AddrNotMatchingDll(_) => {
+                None
+            }
         }
     }
 }
@@ -36,13 +35,15 @@ impl ErrorTrait for Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         use self::Error::*;
-        
+
         match self {
             NullCharacter(_) => write!(f, "String had a null character"),
             OpeningLibraryError(msg) => write!(f, "Could not open library: {}", msg),
-            SymbolGettingError(msg) => write!(f, "Could not obtain symbol from the library: {}", msg),
-            NullSymbol =>  write!(f, "The symbol is NULL"),
-            AddrNotMatchingDll(_) =>  write!(f, "Address does not match any dynamic link library"),
+            SymbolGettingError(msg) => {
+                write!(f, "Could not obtain symbol from the library: {}", msg)
+            }
+            NullSymbol => write!(f, "The symbol is NULL"),
+            AddrNotMatchingDll(_) => write!(f, "Address does not match any dynamic link library"),
         }
     }
 }

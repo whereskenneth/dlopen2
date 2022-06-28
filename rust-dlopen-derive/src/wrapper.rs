@@ -41,7 +41,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
             #(#wrapper_iter)*
         }
     };
-    
+
     q
 }
 

@@ -186,9 +186,11 @@ pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     let process_handle = GetCurrentProcess();
 
     // calls to Sym* functions are not thread safe.
-    let mut buffer = utils::maybe_uninit_uninit_array::<WCHAR, {PATH_MAX as usize}>();
-    let mut symbol_buffer =
-        utils::maybe_uninit_uninit_array::<u8, {size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>()}>();
+    let mut buffer = utils::maybe_uninit_uninit_array::<WCHAR, { PATH_MAX as usize }>();
+    let mut symbol_buffer = utils::maybe_uninit_uninit_array::<
+        u8,
+        { size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>() },
+    >();
     let (module_base, path_len, symbol_info, result) = {
         let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
         let module_base = SymGetModuleBase64(process_handle, addr as u64);
@@ -236,9 +238,11 @@ pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     };
     Ok({
         AddressInfo {
-            dll_path: OsString::from_wide(utils::maybe_uninit_slice_assume_init_ref(&buffer[0..(path_len as usize)]))
-                .to_string_lossy()
-                .into_owned(),
+            dll_path: OsString::from_wide(utils::maybe_uninit_slice_assume_init_ref(
+                &buffer[0..(path_len as usize)],
+            ))
+            .to_string_lossy()
+            .into_owned(),
             dll_base_addr: module_base as *const (),
             overlapping_symbol: os,
         }

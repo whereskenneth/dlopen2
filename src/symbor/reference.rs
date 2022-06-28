@@ -14,9 +14,7 @@ pub struct Ref<'lib, T: 'lib> {
 
 impl<'lib, T> Ref<'lib, T> {
     pub fn new(reference: &'lib T) -> Ref<'lib, T> {
-        Ref {
-            reference,
-        }
+        Ref { reference }
     }
 }
 
