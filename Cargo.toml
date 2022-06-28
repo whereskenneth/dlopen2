@@ -10,7 +10,7 @@ keywords = [
     #common functions
     "dlopen", "dll", "so", "dylib", "shared"]
 license = "MIT"
-repository = "https://github.com/ahmed-masud/rust-dlopen"
+repository = "https://github.com/OpenByteDev/dlopen2"
 edition = "2021"
 
 [dependencies]
