@@ -65,7 +65,7 @@ fn example_address_info() {
     let c_fun_add_two: unsafe extern "C" fn(c_int) -> c_int =
         unsafe { lib.symbol("c_fun_add_two") }.unwrap();
     let aio = AddressInfoObtainer::new();
-    let ai = aio.obtain(c_fun_add_two as *const ()).unwrap();
+    let ai = unsafe { aio.obtain(c_fun_add_two as *const ()) }.unwrap();
     assert_eq!(&ai.dll_path, lib_path.to_str().unwrap());
     let os = ai.overlapping_symbol.unwrap();
     assert_eq!(os.name, "c_fun_add_two");
