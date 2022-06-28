@@ -14,7 +14,7 @@ pub fn symbol_name(field: &Field) -> String {
     }
 }
 
-pub fn find_str_attr_val<'a>(field: &'a Field, attr_name: &str) -> Option<String> {
+pub fn find_str_attr_val(field: &Field, attr_name: &str) -> Option<String> {
     for attr in field.attrs.iter() {
         match attr.parse_meta() {
             Ok(Meta::NameValue(ref meta)) => {

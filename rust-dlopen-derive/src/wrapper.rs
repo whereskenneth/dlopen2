@@ -96,8 +96,8 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> syn::export::TokenStream2 {
 
 fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
     let ident = &field.ident;
-    match &field.ty {
-        &Type::BareFn(ref fun) => {
+    match field.ty {
+        Type::BareFn(ref fun) => {
             if fun.variadic.is_some() {
                 None
             } else {
@@ -118,12 +118,12 @@ fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
                 })
             }
         }
-        &Type::Reference(ref ref_ty) => {
+        Type::Reference(ref ref_ty) => {
             let ty = &ref_ty.elem;
             let mut_acc = match ref_ty.mutability {
                 Some(_token) => {
-                    let mut_ident = &format!("{}_mut", ident.as_ref().unwrap().to_string());
-                    let method_name = syn::Ident::new(&mut_ident, ident.as_ref().unwrap().span());
+                    let mut_ident = &format!("{}_mut", ident.as_ref().unwrap());
+                    let method_name = syn::Ident::new(mut_ident, ident.as_ref().unwrap().span());
                     Some(quote! {
                         pub fn #method_name (&mut self) -> &mut #ty {
                             self.#ident
@@ -144,7 +144,7 @@ fn field_to_wrapper(field: &Field) -> Option<syn::export::TokenStream2> {
             #mut_acc
             })
         }
-        &Type::Ptr(_) => None,
+        Type::Ptr(_) => None,
         _ => panic!("Unknown field type, this should not happen!"),
     }
 }
