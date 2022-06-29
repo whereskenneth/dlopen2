@@ -116,6 +116,8 @@ At the moment none seems to have any reasonable advantage over the other.
 
 */
 
+#![allow(clippy::missing_safety_doc)]
+
 #[macro_use]
 extern crate lazy_static;
 #[cfg(any(unix, test))]
