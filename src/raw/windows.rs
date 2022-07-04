@@ -2,7 +2,7 @@ use crate::utils;
 
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::ffi::{CStr, OsStr, OsString};
 use std::io::{Error as IoError, ErrorKind};
 use std::mem::size_of;
@@ -34,13 +34,13 @@ struct SetErrorModeData {
     pub previous: DWORD,
 }
 
-lazy_static! {
-    static ref SET_ERR_MODE_DATA: Mutex<SetErrorModeData> = Mutex::new(SetErrorModeData {
+static SET_ERR_MODE_DATA: Lazy<Mutex<SetErrorModeData>> = Lazy::new(|| {
+    Mutex::new(SetErrorModeData {
         count: 0,
-        previous: 0
-    });
-    static ref OBTAINERS_COUNT: Mutex<usize> = Mutex::new(0);
-}
+        previous: 0,
+    })
+});
+static OBTAINERS_COUNT: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
 
 pub type Handle = HMODULE;
 

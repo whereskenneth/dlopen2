@@ -1,24 +1,20 @@
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
-use lazy_static::lazy_static;
 use libc::{
     c_int, c_void, dladdr, dlclose, dlerror, dlopen, dlsym, Dl_info, RTLD_LAZY, RTLD_LOCAL,
 };
+use once_cell::sync::Lazy;
 use std::ffi::{CStr, OsStr};
 use std::io::{Error as IoError, ErrorKind};
 use std::os::unix::ffi::OsStrExt;
 use std::ptr::{null, null_mut};
+use std::sync::Mutex;
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 
-use std::sync::Mutex;
-
 // calls to dlerror are not thread-safe, so we guard them
 // with a mutex
-
-lazy_static! {
-    static ref DLERROR_MUTEX: Mutex<()> = Mutex::new(());
-}
+static DLERROR_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
 pub type Handle = *mut c_void;
 
