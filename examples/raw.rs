@@ -1,10 +1,7 @@
-#[macro_use]
-extern crate const_cstr;
-extern crate libc;
-
 mod commons;
 
 use commons::{example_lib_path, SomeData};
+use const_cstr::const_cstr;
 use dlopen::raw::Library;
 use libc::{c_char, c_int};
 use std::ffi::CStr;

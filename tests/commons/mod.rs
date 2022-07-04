@@ -1,12 +1,8 @@
-extern crate libc;
-extern crate regex;
-
 use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
 use libc::c_int;
+use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
-
-use serde::Deserialize;
 
 #[derive(Deserialize)]
 struct Manifest {

@@ -1,9 +1,5 @@
-extern crate dlopen;
-#[macro_use]
-extern crate dlopen_derive;
-extern crate libc;
 use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
-use libc::{c_char, c_int};
+use std::os::raw::{c_char, c_int};
 use std::ffi::CStr;
 
 mod commons;

@@ -4,8 +4,8 @@
 //! It exports multiple symbols with different types and abis.
 //! It's main purpose is to be used in tests of dynlib crate.
 
-#![allow(non_upper_case_globals)]
 extern crate libc;
+
 use libc::{c_char, c_int};
 
 //FUNCTIONS

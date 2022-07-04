@@ -1,6 +1,3 @@
-extern crate dlopen;
-extern crate libc;
-extern crate regex;
 use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
 use libc::c_int;
 use std::env;

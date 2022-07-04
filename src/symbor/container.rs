@@ -16,9 +16,6 @@ This structure allows you to do it.
 #Example
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
 use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
 
  #[derive(SymBorApi)]

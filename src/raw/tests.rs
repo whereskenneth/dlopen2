@@ -4,6 +4,8 @@ use super::unix::{close_lib, get_sym, open_lib};
 #[cfg(windows)]
 use super::windows::{close_lib, get_sym, open_lib};
 
+use const_cstr::const_cstr;
+
 #[cfg(windows)]
 const EXISTING_LIB: &str = "kernel32.dll";
 #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]

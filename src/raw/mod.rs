@@ -9,7 +9,6 @@ approach to loading dynamic link libraries.
 
 # Example
 ```no_run
-extern crate dlopen;
 use dlopen::raw::Library;
 fn main(){
     let lib = Library::open("libexample.so").unwrap();

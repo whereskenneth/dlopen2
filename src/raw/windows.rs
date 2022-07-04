@@ -2,6 +2,7 @@ use crate::utils;
 
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
+use lazy_static::lazy_static;
 use std::ffi::{CStr, OsStr, OsString};
 use std::io::{Error as IoError, ErrorKind};
 use std::mem::size_of;

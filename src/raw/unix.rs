@@ -1,4 +1,6 @@
 use super::super::err::Error;
+use super::common::{AddressInfo, OverlappingSymbol};
+use lazy_static::lazy_static;
 use libc::{
     c_int, c_void, dladdr, dlclose, dlerror, dlopen, dlsym, Dl_info, RTLD_LAZY, RTLD_LOCAL,
 };
@@ -6,8 +8,6 @@ use std::ffi::{CStr, OsStr};
 use std::io::{Error as IoError, ErrorKind};
 use std::os::unix::ffi::OsStrExt;
 use std::ptr::{null, null_mut};
-// use std::mem::uninitialized;
-use super::common::{AddressInfo, OverlappingSymbol};
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 

@@ -14,10 +14,6 @@ easy to use `Container` inside structures.
 #Example
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
-extern crate libc;
 use dlopen::wrapper::{Container, WrapperApi};
 use libc::{c_char};
 use std::ffi::CStr;

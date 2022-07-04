@@ -32,10 +32,6 @@ Wrappers are not generated only for:
 #Example
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
-extern crate libc;
 use dlopen::wrapper::{WrapperApi, Container};
 use libc::{c_char};
 use std::ffi::CStr;

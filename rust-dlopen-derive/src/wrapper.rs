@@ -1,4 +1,5 @@
 use super::common::{get_fields, has_marker_attr, symbol_name};
+use quote::quote;
 use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
 
 const ALLOW_NULL: &str = "dlopen_allow_null";

@@ -7,7 +7,6 @@ that take place when the library gets closed but the symbols still exist and are
 
 #Example of a dangling symbol prevention
 ```no_run
-extern crate dlopen;
 use dlopen::symbor::Library;
 fn main(){
     let lib = Library::open("libexample.dylib").unwrap();
@@ -27,9 +26,6 @@ This is especially handy if you have a huge API with multiple symbols:
 # Example of automatic symbol loading
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
 use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi};
 
  #[derive(SymBorApi)]
@@ -69,7 +65,6 @@ However it is possible to make a mistake if you dereference safe wrappers into r
 #Example of a mistake - dangling symbol
 
 ```no_run
-extern crate dlopen;
 use dlopen::symbor::Library;
 fn main(){
     let raw_fun = {
@@ -110,3 +105,5 @@ pub use self::ptr_or_null_mut::PtrOrNullMut;
 pub use self::reference::Ref;
 pub use self::reference_mut::RefMut;
 pub use self::symbol::Symbol;
+
+pub use dlopen_derive::SymBorApi;

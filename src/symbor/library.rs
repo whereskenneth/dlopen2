@@ -26,7 +26,6 @@ pointers (in 99% of cases you should rather use previously mentioned methods).
 #Example
 
 ```no_run
-extern crate dlopen;
 use dlopen::symbor::Library;
 
 fn main(){

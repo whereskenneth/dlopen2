@@ -1,11 +1,8 @@
-#[macro_use]
-extern crate dlopen_derive;
-extern crate libc;
-
 mod commons;
+
 use commons::{example_lib_path, SomeData};
 use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
-use libc::{c_char, c_int};
+use std::os::raw::{c_char, c_int};
 use std::ffi::CStr;
 
 #[derive(SymBorApi)]

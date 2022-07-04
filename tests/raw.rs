@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate const_cstr;
-extern crate dlopen;
-extern crate libc;
+use const_cstr::const_cstr;
 use dlopen::raw::{AddressInfoObtainer, Library};
 use libc::{c_char, c_int};
 use std::ffi::CStr;

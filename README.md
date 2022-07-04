@@ -11,9 +11,6 @@ I hope that this library will help you to quickly get what you need and avoid er
 ## Quick example
 
 ```rust
-extern crate dlopen;
-#[macro_use]
-extern crate dlopen_derive;
 use dlopen::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]

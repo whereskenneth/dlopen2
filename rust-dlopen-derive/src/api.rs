@@ -1,4 +1,5 @@
 use super::common::{get_fields, symbol_name};
+use quote::quote;
 use syn::{DeriveInput, Field};
 
 pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {

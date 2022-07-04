@@ -50,7 +50,6 @@ impl Library {
     # Example
 
     ```no_run
-    extern crate dlopen;
     use dlopen::raw::Library;
 
     fn main() {
@@ -99,7 +98,6 @@ impl Library {
     # Example
 
     ```no_run
-    extern crate dlopen;
     use dlopen::raw::Library;
     use dlopen::Error;
     use std::ptr::null;
@@ -191,7 +189,6 @@ impl AddressInfoObtainer {
     # Example
 
     ```no_run
-    extern crate dlopen;
     use dlopen::raw::{Library, AddressInfoObtainer};
     fn main() {
         let lib = Library::open("libyourlib.so").unwrap();

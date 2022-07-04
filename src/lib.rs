@@ -11,9 +11,6 @@ I hope that this library will help you to quickly get what you need and avoid er
 # Quick example
 
 ```no_run
-extern crate dlopen;
-#[macro_use]
-extern crate dlopen_derive;
 use dlopen::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
@@ -117,20 +114,6 @@ At the moment none seems to have any reasonable advantage over the other.
 */
 
 #![allow(clippy::missing_safety_doc)]
-
-#[macro_use]
-extern crate lazy_static;
-#[cfg(any(unix, test))]
-extern crate libc;
-#[cfg(windows)]
-extern crate winapi;
-
-#[cfg(test)]
-#[macro_use]
-extern crate const_cstr;
-
-#[cfg(test)]
-extern crate serde;
 
 mod err;
 pub mod raw;

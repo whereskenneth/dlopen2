@@ -11,9 +11,6 @@ and symbols get released at the same time.
 #Example
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
 use dlopen::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
@@ -43,9 +40,6 @@ raw symbols. However it is possible to make a mistake if you create API as a sta
 #Example of a mistake - dangling symbol
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
 use dlopen::wrapper::{Container, WrapperApi};
 use dlopen::raw::Library;
 
@@ -86,3 +80,5 @@ pub use self::api::WrapperApi;
 pub use self::container::Container;
 pub use self::multi_api::WrapperMultiApi;
 pub use self::optional::OptionalContainer;
+
+pub use dlopen_derive::{WrapperApi, WrapperMultiApi};

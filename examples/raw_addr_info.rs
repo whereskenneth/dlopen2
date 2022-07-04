@@ -1,5 +1,3 @@
-extern crate libc;
-
 mod commons;
 
 use commons::example_lib_path;

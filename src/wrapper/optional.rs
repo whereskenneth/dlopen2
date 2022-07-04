@@ -15,9 +15,6 @@ library, the optional API gets loaded. Otherwise the `optional()` method will re
 #Example
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
 use dlopen::wrapper::{OptionalContainer, WrapperApi};
 
 #[derive(WrapperApi)]

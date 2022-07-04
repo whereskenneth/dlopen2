@@ -9,10 +9,6 @@ implement the `FromRawResult` trait and then simply use the automatically
 generated `load(&Library)` function to load all symbols from previously opened library.
 
 ```no_run
-#[macro_use]
-extern crate dlopen_derive;
-extern crate dlopen;
-extern crate libc;
 use dlopen::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
 use libc::{c_double, c_char};
 

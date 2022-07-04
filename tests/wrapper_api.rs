@@ -1,9 +1,5 @@
-extern crate dlopen;
-#[macro_use]
-extern crate dlopen_derive;
-extern crate libc;
 use dlopen::wrapper::{Container, WrapperApi};
-use libc::{c_char, c_int};
+use std::os::raw::{c_char, c_int};
 use std::ffi::CStr;
 
 mod commons;
