@@ -2,7 +2,7 @@
 name = "dlopen_derive"
 version = "0.1.4"
 authors = ["Szymon Wieloch <szymon.wieloch@gmail.com>",
-    "OpenByte <development.openbyte@gmail.com>"]
+           "OpenByte <development.openbyte@gmail.com>"]
 description = "Derive macros for the dlopen crate."
 license = "MIT"
 
