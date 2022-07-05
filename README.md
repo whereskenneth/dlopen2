@@ -73,7 +73,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen2 = "0.1.8"
+dlopen2 = "0.3"
 ```
 
 ## Documentation
