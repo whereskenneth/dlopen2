@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml)
 
+This is a fork of the original, now unmaintained `dlopen` with updated dependencies, bug fixes and some new features.
+
 ## Overview
 
 This library is my effort to make use of dynamic link libraries in Rust simple.
