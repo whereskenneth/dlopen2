@@ -113,7 +113,7 @@ At the moment none seems to have any reasonable advantage over the other.
 
 */
 
-#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::missing_safety_doc, clippy::needless_doctest_main)]
 
 mod err;
 pub mod raw;
