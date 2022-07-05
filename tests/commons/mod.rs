@@ -29,7 +29,11 @@ pub fn example_lib_path() -> PathBuf {
 
     let deps_dirs = [
         workspace_root.join("target").join("debug").join("deps"),
-        workspace_root.join("target").join(current_platform::CURRENT_PLATFORM).join("debug").join("deps"),
+        workspace_root
+            .join("target")
+            .join(current_platform::CURRENT_PLATFORM)
+            .join("debug")
+            .join("deps"),
     ];
 
     // unfortunately rust has no strict pattern of naming dependencies in this directory
@@ -42,7 +46,7 @@ pub fn example_lib_path() -> PathBuf {
     for deps_dir in deps_dirs {
         let new_path = match recursive_find(deps_dir.as_path(), &file_regex) {
             None => continue,
-            Some(p) => p
+            Some(p) => p,
         };
 
         match &lib_path {
