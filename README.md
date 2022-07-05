@@ -1,6 +1,11 @@
 # dlopen2
 
+
 [![CI](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/dlopen2.svg)](https://crates.io/crates/dlopen2)
+[![Documentation](https://docs.rs/dlopen2/badge.svg)](https://docs.rs/dlopen2)
+[![dependency status](https://deps.rs/repo/github/openbytedev/dlopen2/status.svg)](https://deps.rs/repo/github/openbytedev/dlopen2)
+[![MIT](https://img.shields.io/crates/l/dlopen2.svg)](https://github.com/OpenByteDev/dlopen2/blob/master/LICENSE)
 
 This is a fork of the original, now unmaintained `dlopen` with updated dependencies, bug fixes and some new features.
 
