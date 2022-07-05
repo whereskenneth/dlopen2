@@ -10,7 +10,7 @@ generated `load(&Library)` function to load all symbols from previously opened l
 
 ```no_run
 use dlopen::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
-use libc::{c_double, c_char};
+use std::os::raw::{c_double, c_char};
 
 #[derive(SymBorApi)]
 struct Example<'a> {

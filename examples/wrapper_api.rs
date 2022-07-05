@@ -1,6 +1,6 @@
 use dlopen::wrapper::{Container, WrapperApi};
-use std::os::raw::{c_char, c_int};
 use std::ffi::CStr;
+use std::os::raw::{c_char, c_int};
 
 mod commons;
 use commons::{example_lib_path, SomeData};

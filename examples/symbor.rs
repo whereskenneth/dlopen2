@@ -3,8 +3,8 @@ mod commons;
 use commons::{example_lib_path, SomeData};
 use const_cstr::const_cstr;
 use dlopen::symbor::Library;
-use libc::{c_char, c_int};
 use std::ffi::CStr;
+use std::os::raw::{c_char, c_int};
 
 fn main() {
     let lib_path = example_lib_path();

@@ -33,7 +33,7 @@ Wrappers are not generated only for:
 
 ```no_run
 use dlopen::wrapper::{WrapperApi, Container};
-use libc::{c_char};
+use std::os::raw::{c_char};
 use std::ffi::CStr;
 
 #[derive(WrapperApi)]

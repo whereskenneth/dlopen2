@@ -9,6 +9,3 @@ description = "Example dynamic link library for executing tests of libraries tha
 [lib]
 name = "example"
 crate-type = ["cdylib"]
-
-[dependencies]
-libc = "0.2"

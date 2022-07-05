@@ -15,7 +15,7 @@ easy to use `Container` inside structures.
 
 ```no_run
 use dlopen::wrapper::{Container, WrapperApi};
-use libc::{c_char};
+use std::os::raw::{c_char};
 use std::ffi::CStr;
 
 #[derive(WrapperApi)]

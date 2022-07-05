@@ -2,8 +2,8 @@ mod commons;
 
 use commons::{example_lib_path, SomeData};
 use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
-use std::os::raw::{c_char, c_int};
 use std::ffi::CStr;
+use std::os::raw::{c_char, c_int};
 
 #[derive(SymBorApi)]
 struct Api<'a> {

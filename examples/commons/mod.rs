@@ -1,6 +1,6 @@
 use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
-use libc::c_int;
 use std::env;
+use std::os::raw::c_int;
 use std::path::PathBuf;
 
 //Rust when building dependencies adds some weird numbers to file names

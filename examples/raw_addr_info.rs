@@ -2,7 +2,7 @@ mod commons;
 
 use commons::example_lib_path;
 use dlopen::raw::{AddressInfoObtainer, Library};
-use libc::c_int;
+use std::os::raw::c_int;
 
 fn main() {
     let lib_path = example_lib_path();

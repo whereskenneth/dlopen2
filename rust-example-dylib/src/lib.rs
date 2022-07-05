@@ -4,9 +4,7 @@
 //! It exports multiple symbols with different types and abis.
 //! It's main purpose is to be used in tests of dynlib crate.
 
-extern crate libc;
-
-use libc::{c_char, c_int};
+use std::os::raw::{c_char, c_int};
 
 //FUNCTIONS
 #[no_mangle]
