@@ -1,4 +1,4 @@
-use syn::{Data, DeriveInput, Field, Fields, FieldsNamed, Lit, Meta};
+use syn::{Data, DeriveInput, Field, Fields, FieldsNamed, Lit, Meta, Attribute};
 
 pub fn symbol_name(field: &Field) -> String {
     match find_str_attr_val(field, "dlopen2_name") {
@@ -30,6 +30,17 @@ pub fn find_str_attr_val(field: &Field, attr_name: &str) -> Option<String> {
         }
     }
     None
+}
+
+pub fn get_non_marker_attrs(field: &Field) -> Vec<&Attribute> {
+    field.attrs.iter().filter(|attr| {
+        if let Some(ident) = attr.path.get_ident() {
+            if ident.to_string().starts_with("dlopen2_") {
+                return false;
+            }
+        }
+        true
+    }).collect::<Vec<_>>()
 }
 
 pub fn has_marker_attr(field: &Field, attr_name: &str) -> bool {

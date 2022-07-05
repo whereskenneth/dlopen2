@@ -1,4 +1,4 @@
-use super::common::{get_fields, has_marker_attr, symbol_name};
+use super::common::{get_fields, has_marker_attr, symbol_name, get_non_marker_attrs};
 use quote::quote;
 use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
 
@@ -97,6 +97,7 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
 
 fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
     let ident = &field.ident;
+    let attrs = get_non_marker_attrs(field);
 
     match field.ty {
         Type::BareFn(ref fun) => {
@@ -114,6 +115,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
                     ::std::option::Option::None => panic!("This should never happen"),
                 });
                 Some(quote! {
+                    #(#attrs)*
                     pub #unsafety fn #ident (&self, #(#arg_iter),* ) #output {
                         (self.#ident)(#(#arg_names),*)
                     }
@@ -127,6 +129,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
                     let mut_ident = &format!("{}_mut", ident.as_ref().unwrap());
                     let method_name = syn::Ident::new(mut_ident, ident.as_ref().unwrap().span());
                     Some(quote! {
+                        #(#attrs)*
                         pub fn #method_name (&mut self) -> &mut #ty {
                             self.#ident
                         }
@@ -136,6 +139,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
             };
             // constant accessor
             let const_acc = quote! {
+                #(#attrs)*
                 pub fn #ident (&self) -> & #ty {
                     self.#ident
                 }
