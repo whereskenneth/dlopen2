@@ -1,7 +1,7 @@
 use syn::{Data, DeriveInput, Field, Fields, FieldsNamed, Lit, Meta};
 
 pub fn symbol_name(field: &Field) -> String {
-    match find_str_attr_val(field, "dlopen_name") {
+    match find_str_attr_val(field, "dlopen2_name") {
         Some(val) => val,
         None =>
         //not found, so use field name

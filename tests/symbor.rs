@@ -1,5 +1,5 @@
 use const_cstr::const_cstr;
-use dlopen::symbor::Library;
+use dlopen2::symbor::Library;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 

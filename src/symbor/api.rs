@@ -9,7 +9,7 @@ implement the `FromRawResult` trait and then simply use the automatically
 generated `load(&Library)` function to load all symbols from previously opened library.
 
 ```no_run
-use dlopen::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
+use dlopen2::symbor::{Library, Symbol, SymBorApi, PtrOrNull, RefMut, PtrOrNullMut};
 use std::os::raw::{c_double, c_char};
 
 #[derive(SymBorApi)]
@@ -19,7 +19,7 @@ struct Example<'a> {
     pub optional_fun: Option<Symbol<'a, unsafe extern "C" fn()>>,
     pub nullable_ptr: PtrOrNullMut<'a, c_char>,
     pub mut_ref_i32: Symbol<'a, &'a mut i32>,
-    #[dlopen_name="mut_ref_i32"]
+    #[dlopen2_name="mut_ref_i32"]
     pub the_same_mut_ref_i32: RefMut<'a, i32>,
     pub not_nullable_ptr: Symbol<'a, * mut c_double>
 }
@@ -47,7 +47,7 @@ fn main(){
 Please notice several supported features:
 
 * By default `SymBorApi` uses the field name to obtain a symbol from the library.
-    You can override the symbol name using the `dlopen_name` attribute.
+    You can override the symbol name using the `dlopen2_name` attribute.
 * All kind of objects from the `symbor` module implement the Deref or DerefMut trait.
     This means that you can use them as if you would use primitive types that they wrap.
 * You can obtain optional symbols. This is very useful when you are dealing with

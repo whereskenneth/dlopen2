@@ -1,7 +1,7 @@
 mod commons;
 
 use commons::example_lib_path;
-use dlopen::raw::{AddressInfoObtainer, Library};
+use dlopen2::raw::{AddressInfoObtainer, Library};
 use std::os::raw::c_int;
 
 fn main() {

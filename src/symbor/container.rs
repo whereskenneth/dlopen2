@@ -16,7 +16,7 @@ This structure allows you to do it.
 #Example
 
 ```no_run
-use dlopen::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
+use dlopen2::symbor::{Library, Symbol, Ref, PtrOrNull, SymBorApi, Container};
 
  #[derive(SymBorApi)]
  struct ExampleApi<'a> {

@@ -1,4 +1,4 @@
-use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
+use dlopen2::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
 use std::env;
 use std::os::raw::c_int;
 use std::path::PathBuf;

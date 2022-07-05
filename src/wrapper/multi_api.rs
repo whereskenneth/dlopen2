@@ -16,7 +16,7 @@ structure where all fields implement the `WrapperApi` trait (this includes `Opti
 a standalone object. API and library handle need to be kept together to prevent dangling symbols.
 
 ```no_run
-use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
+use dlopen2::wrapper::{Container, WrapperApi, WrapperMultiApi};
 
 //Define 3 APIs:
 

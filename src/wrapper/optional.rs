@@ -15,7 +15,7 @@ library, the optional API gets loaded. Otherwise the `optional()` method will re
 #Example
 
 ```no_run
-use dlopen::wrapper::{OptionalContainer, WrapperApi};
+use dlopen2::wrapper::{OptionalContainer, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Obligatory<'a> {

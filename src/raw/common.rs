@@ -50,7 +50,7 @@ impl Library {
     # Example
 
     ```no_run
-    use dlopen::raw::Library;
+    use dlopen2::raw::Library;
 
     fn main() {
         //use full path
@@ -98,8 +98,8 @@ impl Library {
     # Example
 
     ```no_run
-    use dlopen::raw::Library;
-    use dlopen::Error;
+    use dlopen2::raw::Library;
+    use dlopen2::Error;
     use std::ptr::null;
     fn main(){
         let lib = Library::open("libyourlib.so").unwrap();
@@ -124,7 +124,7 @@ impl Library {
         //this comparison should be calculated by compiler at compilation time - zero cost
         if size_of::<T>() != size_of::<*mut ()>() {
             panic!(
-                "The type passed to dlopen::Library::symbol() function has a different size than a \
+                "The type passed to dlopen2::Library::symbol() function has a different size than a \
                  pointer - cannot transmute"
             );
         }
@@ -189,7 +189,7 @@ impl AddressInfoObtainer {
     # Example
 
     ```no_run
-    use dlopen::raw::{Library, AddressInfoObtainer};
+    use dlopen2::raw::{Library, AddressInfoObtainer};
     fn main() {
         let lib = Library::open("libyourlib.so").unwrap();
         let ptr: * const i32 = unsafe{ lib.symbol("symbolname") }.unwrap();

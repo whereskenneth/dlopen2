@@ -26,7 +26,7 @@ pointers (in 99% of cases you should rather use previously mentioned methods).
 #Example
 
 ```no_run
-use dlopen::symbor::Library;
+use dlopen2::symbor::Library;
 
 fn main(){
     let lib = Library::open("libexample.dylib").unwrap();

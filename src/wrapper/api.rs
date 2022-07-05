@@ -5,7 +5,7 @@ use super::super::raw::Library;
 Trait for defining library API.
 
 This trait is intended to be used with `#[derive(WrapperApi)]` macro defined in the
-`dlopen_derive` crate. It forces several restrictions on types that implement it:
+`dlopen2_derive` crate. It forces several restrictions on types that implement it:
 
 * Only structures can implement this trait.
 * All fields need to be private.
@@ -32,18 +32,18 @@ Wrappers are not generated only for:
 #Example
 
 ```no_run
-use dlopen::wrapper::{WrapperApi, Container};
+use dlopen2::wrapper::{WrapperApi, Container};
 use std::os::raw::{c_char};
 use std::ffi::CStr;
 
 #[derive(WrapperApi)]
 struct Example<'a> {
-    #[dlopen_name="function"]
+    #[dlopen2_name="function"]
     do_something: extern "C" fn(),
     add_one: unsafe extern "C" fn (arg: i32) -> i32,
     global_count: &'a mut u32,
     c_string: * const c_char,
-    #[dlopen_allow_null]
+    #[dlopen2_allow_null]
     maybe_null_ptr: * const (),
 }
 
@@ -67,12 +67,12 @@ fn main () {
 a standalone object. API and library handle need to be kept together to prevent dangling symbols.
 
 **Note:** By default obtained symbol name is the field name. You can change this by
-assigning the "dlopen_name" attribute to the given field.
+assigning the "dlopen2_name" attribute to the given field.
 
 **Note:** By default `Error::NullSymbol` is returned if the loaded symbol name has a null value.
 While null is a valid value of a exported symbol, it is usually not expected by users of libraries.
 If in your scenario null is an acceptable value, you should assign
-"dlopen_allow_null" attribute to the given field. Of course this makes sense only if the field
+"dlopen2_allow_null" attribute to the given field. Of course this makes sense only if the field
 is of pointer type.
 */
 pub trait WrapperApi

@@ -1,5 +1,5 @@
 use const_cstr::const_cstr;
-use dlopen::raw::{AddressInfoObtainer, Library};
+use dlopen2::raw::{AddressInfoObtainer, Library};
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 

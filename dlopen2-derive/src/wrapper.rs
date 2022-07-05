@@ -2,7 +2,7 @@ use super::common::{get_fields, has_marker_attr, symbol_name};
 use quote::quote;
 use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
 
-const ALLOW_NULL: &str = "dlopen_allow_null";
+const ALLOW_NULL: &str = "dlopen2_allow_null";
 const TRAIT_NAME: &str = "WrapperApi";
 
 pub fn impl_wrapper_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
@@ -30,7 +30,7 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let wrapper_iter = fields.named.iter().filter_map(field_to_wrapper);
     let q = quote! {
         impl #generics WrapperApi for #struct_name #generics {
-            unsafe fn load(lib: & ::dlopen::raw::Library ) -> ::std::result::Result<Self, ::dlopen::Error> {
+            unsafe fn load(lib: & ::dlopen2::raw::Library ) -> ::std::result::Result<Self, ::dlopen2::Error> {
                 Ok(Self{
                     #(#field_iter),*
                 })
@@ -81,13 +81,14 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
         Some(_) => quote! {null},
         None => quote! {null_mut},
     };
+
     quote! {
         #field_name : match lib.symbol_cstr(
         ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
         ) {
-        ::std::result::Result::Ok(val) => val,
-        ::std::result::Result::Err(err) => match err {
-                ::dlopen::Error::NullSymbol => ::std::ptr:: #null_fun (),
+            ::std::result::Result::Ok(val) => val,
+            ::std::result::Result::Err(err) => match err {
+                ::dlopen2::Error::NullSymbol => ::std::ptr:: #null_fun (),
                 _ => return ::std::result::Result::Err(err)
             }
         }
@@ -96,6 +97,7 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
 
 fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
     let ident = &field.ident;
+
     match field.ty {
         Type::BareFn(ref fun) => {
             if fun.variadic.is_some() {

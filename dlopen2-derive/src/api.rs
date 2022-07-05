@@ -9,7 +9,7 @@ pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let tok_iter = fields.named.iter().map(field_to_tokens);
     let q = quote! {
         impl<'a> SymBorApi<'a> for #name<'a> {
-            unsafe fn load(lib: &'a ::dlopen::symbor::Library) -> ::std::result::Result<#name<'a>,::dlopen::Error> {
+            unsafe fn load(lib: &'a ::dlopen2::symbor::Library) -> ::std::result::Result<#name<'a>,::dlopen2::Error> {
                 ::std::result::Result::Ok(#name {
                 #(#tok_iter),*
                 })
@@ -29,7 +29,7 @@ fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
             let raw_result = lib.ptr_or_null_cstr::<()>(
                 ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
             );
-            ::dlopen::symbor::FromRawResult::from_raw_result(raw_result)?
+            ::dlopen2::symbor::FromRawResult::from_raw_result(raw_result)?
         }
     }
 }

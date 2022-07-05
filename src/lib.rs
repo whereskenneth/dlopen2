@@ -11,7 +11,7 @@ I hope that this library will help you to quickly get what you need and avoid er
 # Quick example
 
 ```no_run
-use dlopen::wrapper::{Container, WrapperApi};
+use dlopen2::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Api<'a> {
@@ -46,7 +46,7 @@ fn main(){
 
 ## Compare with other libraries
 
-|Feature                             | dlopen     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
+|Feature                             | dlopen2     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
 |------------------------------------|------------|---------------------------------------------------------|-------------------------------------------------|
 | Basic functionality                | Yes        | Yes        | Yes       |
 | Multiplatform                      | Yes        | Yes        | Yes       |
@@ -71,16 +71,16 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen = "0.1"
+dlopen2 = "0.1"
 ```
 
 # Documentation
 
-[Cargo documentation](https://docs.rs/dlopen)
+[Cargo documentation](https://docs.rs/dlopen2)
 
 [Examples](../examples)
 
-[Changelog](https://github.com/szymonwieloch/rust-dlopen/releases)
+[Changelog](https://github.com/szymonwieloch/dlopen2/releases)
 
 # License
 This code is licensed under [MIT](../LICENSE) license.

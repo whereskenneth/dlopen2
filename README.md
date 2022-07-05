@@ -1,4 +1,4 @@
-# rust-dlopen
+# dlopen2
 
 [![CI](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml)
 
@@ -11,7 +11,7 @@ I hope that this library will help you to quickly get what you need and avoid er
 ## Quick example
 
 ```rust
-use dlopen::wrapper::{Container, WrapperApi};
+use dlopen2::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Api<'a> {
@@ -46,7 +46,7 @@ fn main(){
 
 ## Compare with other libraries
 
-|Feature                             | dlopen     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
+|Feature                             | dlopen2     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
 |------------------------------------|------------|---------------------------------------------------------|-------------------------------------------------|
 | Basic functionality                | Yes        | Yes        | Yes       |
 | Multiplatform                      | Yes        | Yes        | Yes       |
@@ -71,12 +71,12 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen = "0.1.8"
+dlopen2 = "0.1.8"
 ```
 
 ## Documentation
 
-[Cargo documentation](https://docs.rs/dlopen)
+[Cargo documentation](https://docs.rs/dlopen2)
 
 ## License
 
@@ -84,7 +84,7 @@ This code is licensed under [MIT](./LICENSE) license.
 
 ## Changelog
 
-[GitHub changelog](https://github.com/ahmed-masud/rust-dlopen/releases)
+[GitHub changelog](https://github.com/ahmed-masud/dlopen2/releases)
 
 ## Acknowledgement
 

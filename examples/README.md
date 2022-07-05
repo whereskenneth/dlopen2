@@ -1,4 +1,4 @@
-# rust-dlopen examples
+# dlopen2 examples
 
 Files in directory perform very similar operations
 but they use different APIs. You can compare these

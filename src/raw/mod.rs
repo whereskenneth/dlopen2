@@ -9,7 +9,7 @@ approach to loading dynamic link libraries.
 
 # Example
 ```no_run
-use dlopen::raw::Library;
+use dlopen2::raw::Library;
 fn main(){
     let lib = Library::open("libexample.so").unwrap();
     let fun_add_one: unsafe extern "C" fn(i32)->i32 = unsafe{lib.symbol("add_one")}.unwrap();

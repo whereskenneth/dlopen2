@@ -15,7 +15,7 @@ use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 use wrapper::impl_wrapper_api;
 
-#[proc_macro_derive(WrapperApi, attributes(dlopen_name, dlopen_allow_null))]
+#[proc_macro_derive(WrapperApi, attributes(dlopen2_name, dlopen2_allow_null))]
 pub fn wrapper_api(input: TokenStream) -> TokenStream {
     // Parse the string representation
     let ast = parse_macro_input!(input as DeriveInput);
@@ -39,7 +39,7 @@ pub fn wrapper_multi_api(input: TokenStream) -> TokenStream {
     TokenStream::from(gen)
 }
 
-#[proc_macro_derive(SymBorApi, attributes(dlopen_name))]
+#[proc_macro_derive(SymBorApi, attributes(dlopen2_name))]
 pub fn library_api(input: TokenStream) -> TokenStream {
     // Parse the string representation
     let ast = parse_macro_input!(input as DeriveInput);

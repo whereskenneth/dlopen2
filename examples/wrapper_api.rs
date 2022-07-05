@@ -1,4 +1,4 @@
-use dlopen::wrapper::{Container, WrapperApi};
+use dlopen2::wrapper::{Container, WrapperApi};
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 
@@ -13,7 +13,7 @@ struct Api<'a> {
     c_fun_add_two: unsafe extern "C" fn(arg: c_int) -> c_int,
     rust_i32: &'a i32,
     rust_i32_mut: &'a mut i32,
-    #[dlopen_name = "rust_i32_mut"]
+    #[dlopen2_name = "rust_i32_mut"]
     rust_i32_ptr: *const i32,
     c_int: &'a c_int,
     c_struct: &'a SomeData,

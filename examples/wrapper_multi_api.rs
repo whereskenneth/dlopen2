@@ -1,7 +1,7 @@
 mod commons;
 use commons::example_lib_path;
 
-use dlopen::wrapper::{Container, WrapperApi, WrapperMultiApi};
+use dlopen2::wrapper::{Container, WrapperApi, WrapperMultiApi};
 use std::os::raw::c_int;
 
 //Define 3 APIs:

@@ -1,4 +1,4 @@
-use dlopen::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
+use dlopen2::utils::{PLATFORM_FILE_EXTENSION, PLATFORM_FILE_PREFIX};
 use serde::Deserialize;
 use std::fs;
 use std::os::raw::c_int;

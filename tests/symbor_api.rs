@@ -1,4 +1,4 @@
-use dlopen::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
+use dlopen2::symbor::{Library, PtrOrNull, Ref, RefMut, SymBorApi, Symbol};
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 
@@ -13,7 +13,7 @@ struct Api<'a> {
     pub c_fun_add_two: Symbol<'a, unsafe extern "C" fn(c_int) -> c_int>,
     pub rust_i32: Ref<'a, i32>,
     pub rust_i32_mut: RefMut<'a, i32>,
-    #[dlopen_name = "rust_i32_mut"]
+    #[dlopen2_name = "rust_i32_mut"]
     pub rust_i32_ptr: Symbol<'a, *const i32>,
     pub c_int: Ref<'a, c_int>,
     pub c_struct: Ref<'a, SomeData>,

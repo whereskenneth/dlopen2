@@ -11,7 +11,7 @@ and symbols get released at the same time.
 #Example
 
 ```no_run
-use dlopen::wrapper::{Container, WrapperApi};
+use dlopen2::wrapper::{Container, WrapperApi};
 
 #[derive(WrapperApi)]
 struct Example<'a> {
@@ -40,8 +40,8 @@ raw symbols. However it is possible to make a mistake if you create API as a sta
 #Example of a mistake - dangling symbol
 
 ```no_run
-use dlopen::wrapper::{Container, WrapperApi};
-use dlopen::raw::Library;
+use dlopen2::wrapper::{Container, WrapperApi};
+use dlopen2::raw::Library;
 
 #[derive(WrapperApi)]
 struct Example<'a> {
@@ -81,4 +81,4 @@ pub use self::container::Container;
 pub use self::multi_api::WrapperMultiApi;
 pub use self::optional::OptionalContainer;
 
-pub use dlopen_derive::{WrapperApi, WrapperMultiApi};
+pub use dlopen2_derive::{WrapperApi, WrapperMultiApi};
