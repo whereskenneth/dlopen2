@@ -28,9 +28,9 @@ pub fn example_lib_path() -> PathBuf {
     let manifest: Manifest = serde_json::from_slice(&output.stdout).unwrap();
     let mut lib_path = PathBuf::from(manifest.workspace_root);
     lib_path.extend(["target", "debug", "deps"].iter());
-    let entry = lib_path.read_dir().unwrap().find(|e| match e {
-        &Ok(ref entry) => file_regex.is_match(entry.file_name().to_str().unwrap()),
-        &Err(ref err) => panic!("Could not read cargo debug directory: {}", err),
+    let entry = lib_path.read_dir().unwrap().find(|e| match *e {
+        Ok(ref entry) => file_regex.is_match(entry.file_name().to_str().unwrap()),
+        Err(ref err) => panic!("Could not read cargo debug directory: {}", err),
     });
     lib_path.push(entry.unwrap().unwrap().file_name());
     println!("Library path: {}", lib_path.to_str().unwrap());
