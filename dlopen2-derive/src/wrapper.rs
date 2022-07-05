@@ -1,4 +1,4 @@
-use super::common::{get_fields, has_marker_attr, symbol_name, get_non_marker_attrs};
+use super::common::{get_fields, get_non_marker_attrs, has_marker_attr, symbol_name};
 use quote::quote;
 use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
 
