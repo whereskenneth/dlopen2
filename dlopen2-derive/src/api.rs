@@ -11,7 +11,7 @@ pub fn impl_library_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
         impl<'a> SymBorApi<'a> for #name<'a> {
             unsafe fn load(lib: &'a ::dlopen2::symbor::Library) -> ::std::result::Result<#name<'a>,::dlopen2::Error> {
                 ::std::result::Result::Ok(#name {
-                #(#tok_iter),*
+                    #(#tok_iter),*
                 })
             }
         }

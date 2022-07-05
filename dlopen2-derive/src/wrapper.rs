@@ -9,8 +9,8 @@ pub fn impl_wrapper_api(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let struct_name = &ast.ident;
     let fields = get_fields(ast, TRAIT_NAME);
     let generics = &ast.generics;
-    //make sure that all fields are private - panic otherwise
-    //make sure that all fields are identifiable - panic otherwise
+    // make sure that all fields are private - panic otherwise
+    // make sure that all fields are identifiable - panic otherwise
     for field in fields.named.iter() {
         let _ = field
             .ident
@@ -69,7 +69,7 @@ fn normal_field(field: &Field) -> proc_macro2::TokenStream {
     let symbol_name = symbol_name(field);
     quote! {
         #field_name : lib.symbol_cstr(
-        ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+            ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
         )?
     }
 }
@@ -84,7 +84,7 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
 
     quote! {
         #field_name : match lib.symbol_cstr(
-        ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+            ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
         ) {
             ::std::result::Result::Ok(val) => val,
             ::std::result::Result::Err(err) => match err {
@@ -134,7 +134,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
                 }
                 None => None,
             };
-            //constant accessor
+            // constant accessor
             let const_acc = quote! {
                 pub fn #ident (&self) -> & #ty {
                     self.#ident
@@ -142,8 +142,8 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
             };
 
             Some(quote! {
-            #const_acc
-            #mut_acc
+                #const_acc
+                #mut_acc
             })
         }
         Type::Ptr(_) => None,

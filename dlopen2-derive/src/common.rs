@@ -3,9 +3,8 @@ use syn::{Data, DeriveInput, Field, Fields, FieldsNamed, Lit, Meta};
 pub fn symbol_name(field: &Field) -> String {
     match find_str_attr_val(field, "dlopen2_name") {
         Some(val) => val,
-        None =>
-        //not found, so use field name
-        {
+        None => {
+            // not found, so use field name
             match field.ident {
                 Some(ref val) => val.to_string(),
                 None => panic!("All structure fields need to be identifiable"),
