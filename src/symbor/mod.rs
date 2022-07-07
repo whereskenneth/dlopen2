@@ -106,4 +106,5 @@ pub use self::reference::Ref;
 pub use self::reference_mut::RefMut;
 pub use self::symbol::Symbol;
 
+#[cfg(feature = "derive")]
 pub use dlopen2_derive::SymBorApi;

@@ -81,4 +81,5 @@ pub use self::container::Container;
 pub use self::multi_api::WrapperMultiApi;
 pub use self::optional::OptionalContainer;
 
+#[cfg(feature = "derive")]
 pub use dlopen2_derive::{WrapperApi, WrapperMultiApi};

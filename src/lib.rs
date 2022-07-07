@@ -114,10 +114,15 @@ At the moment none seems to have any reasonable advantage over the other.
 */
 
 #![allow(clippy::missing_safety_doc, clippy::needless_doctest_main)]
+#![cfg_attr(feature = "doc_cfg", feature(doc_cfg))]
 
 mod err;
 pub mod raw;
-pub mod symbor;
 pub mod utils;
+#[cfg(feature = "symbor")]
+#[cfg_attr(feature = "doc_cfg", doc(cfg(feature = "symbor")))]
+pub mod symbor;
+#[cfg(feature = "wrapper")]
+#[cfg_attr(feature = "doc_cfg", doc(cfg(feature = "wrapper")))]
 pub mod wrapper;
 pub use err::Error;
