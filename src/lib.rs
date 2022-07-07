@@ -118,10 +118,10 @@ At the moment none seems to have any reasonable advantage over the other.
 
 mod err;
 pub mod raw;
-pub mod utils;
 #[cfg(feature = "symbor")]
 #[cfg_attr(feature = "doc_cfg", doc(cfg(feature = "symbor")))]
 pub mod symbor;
+pub mod utils;
 #[cfg(feature = "wrapper")]
 #[cfg_attr(feature = "doc_cfg", doc(cfg(feature = "wrapper")))]
 pub mod wrapper;
