@@ -2,7 +2,7 @@ use crate::utils;
 
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use std::ffi::{CStr, OsStr, OsString};
 use std::io::{Error as IoError, ErrorKind};
 use std::mem::size_of;
@@ -14,9 +14,7 @@ use std::sync::Mutex;
 use winapi::shared::basetsd::DWORD64;
 use winapi::shared::minwindef::{DWORD, HMODULE, TRUE};
 use winapi::shared::winerror::ERROR_CALL_NOT_IMPLEMENTED;
-use winapi::um::dbghelp::{
-    SymCleanup, SymFromAddrW, SymGetModuleBase64, SymInitializeW, SYMBOL_INFOW,
-};
+use winapi::um::dbghelp::{SymFromAddrW, SymGetModuleBase64, SymInitializeW, SYMBOL_INFOW};
 use winapi::um::errhandlingapi::{GetLastError, SetErrorMode, SetThreadErrorMode};
 use winapi::um::libloaderapi::{
     FreeLibrary, GetModuleFileNameW, GetModuleHandleExW, GetProcAddress, LoadLibraryW,
@@ -40,7 +38,7 @@ static SET_ERR_MODE_DATA: Lazy<Mutex<SetErrorModeData>> = Lazy::new(|| {
         previous: 0,
     })
 });
-static OBTAINERS_COUNT: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+static SYM_MUTEX: OnceCell<Mutex<()>> = OnceCell::new();
 
 pub type Handle = HMODULE;
 
@@ -57,7 +55,7 @@ process.
 https://msdn.microsoft.com/pl-pl/library/windows/desktop/dd553630(v=vs.85).aspx
 */
 
-const ERROR_MODE: DWORD = 1; //app handles everything
+const ERROR_MODE: DWORD = 1; // app handles everything
 
 enum ErrorModeGuard {
     ThreadPreviousValue(DWORD),
@@ -172,28 +170,26 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
 
 #[inline]
 pub unsafe fn addr_info_init() {
-    //calls to Sym* functions are not thread safe.
-    let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
-    if *lock == 0 {
+    // calls to Sym* functions are not thread safe.
+    SYM_MUTEX.get_or_init(|| {
         let process_handle = GetCurrentProcess();
-        let result = SymInitializeW(process_handle, null_mut(), TRUE);
-        assert_eq!(result, TRUE);
-    }
-    *lock += 1;
+        let _result = SymInitializeW(process_handle, null_mut(), TRUE);
+        Mutex::new(())
+    });
 }
 
 #[inline]
 pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
     let process_handle = GetCurrentProcess();
 
-    // calls to Sym* functions are not thread safe.
     let mut buffer = utils::maybe_uninit_uninit_array::<WCHAR, { PATH_MAX as usize }>();
     let mut symbol_buffer = utils::maybe_uninit_uninit_array::<
         u8,
         { size_of::<SYMBOL_INFOW>() + MAX_SYMBOL_LEN * size_of::<WCHAR>() },
     >();
     let (module_base, path_len, symbol_info, result) = {
-        let mut _lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
+        // calls to Sym* functions are not thread safe.
+        let mut _lock = SYM_MUTEX.get().unwrap().lock().expect("Mutex got poisoned");
         let module_base = SymGetModuleBase64(process_handle, addr as u64);
 
         if module_base == 0 {
@@ -251,15 +247,7 @@ pub unsafe fn addr_info_obtain(addr: *const ()) -> Result<AddressInfo, Error> {
 }
 
 #[inline]
-pub unsafe fn addr_info_cleanup() {
-    let mut lock = OBTAINERS_COUNT.lock().expect("Mutex got poisoned");
-    *lock -= 1;
-    if *lock == 0 {
-        let process_handle = GetCurrentProcess();
-        let result = SymCleanup(process_handle);
-        assert_eq!(result, TRUE);
-    }
-}
+pub unsafe fn addr_info_cleanup() {}
 
 #[inline]
 pub fn close_lib(handle: Handle) -> Handle {

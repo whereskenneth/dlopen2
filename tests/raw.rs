@@ -68,3 +68,17 @@ fn example_address_info() {
     assert_eq!(os.name, "c_fun_add_two");
     assert_eq!(os.addr, c_fun_add_two as *const ())
 }
+
+// https://github.com/OpenByteDev/dlopen2/issues/3
+#[test]
+#[cfg(windows)]
+fn double_sym_init_does_not_panic() {
+    let lib_path = example_lib_path();
+    let library = Library::open(&lib_path).expect("Could not open library");
+    let pointer: *const () = unsafe { library.symbol("c_fun_add_two") }.unwrap();
+
+    let _ = std::panic::catch_unwind(|| panic!()); // this generates a backtrace. Backtrace::capture() probably works too
+
+    // Panics because SymInitializeW returns an error
+    unsafe { AddressInfoObtainer::new().obtain(pointer) }.unwrap();
+}
