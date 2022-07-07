@@ -58,7 +58,7 @@ fn main(){
 | Basic functionality                | Yes        | Yes        | Yes       |
 | Multiplatform                      | Yes        | Yes        | Yes       |
 |Dangling symbol prevention          | Yes        | Yes        | Yes       |
-| Thread safety                      | Yes        | **Potential problem with SetErrorMode() on older Windows platforms** | **No support for SetErrorMode (library may block the application on Windows)**|
+| Thread safety                      | Yes        | **Potential problem with thread-safety of `dlerror()` on some platforms like FreeBSD** | **No support for SetErrorMode (library may block the application on Windows)**|
 | Loading of symbols into structures | Yes        | **No**     | **No**
 | Overhead                           | Minimal    | Minimal    | **Some overhead** |
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |

@@ -1,25 +1,38 @@
+#![allow(clippy::let_unit_value)]
+
 use super::super::err::Error;
 use super::common::{AddressInfo, OverlappingSymbol};
 use libc::{dladdr, dlclose, dlerror, dlopen, dlsym, Dl_info, RTLD_LAZY, RTLD_LOCAL};
-use once_cell::sync::Lazy;
 use std::ffi::{CStr, OsStr};
 use std::io::{Error as IoError, ErrorKind};
 use std::os::raw::{c_int, c_void};
 use std::os::unix::ffi::OsStrExt;
 use std::ptr::{null, null_mut};
-use std::sync::Mutex;
 
 const DEFAULT_FLAGS: c_int = RTLD_LOCAL | RTLD_LAZY;
 
-// calls to dlerror are not thread-safe, so we guard them
-// with a mutex
-static DLERROR_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+// calls to dlerror are not thread-safe on some platforms,
+// so we guard them with a mutex if required
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+use {
+    once_cell::sync::Lazy,
+    std::sync::{LockResult, Mutex, MutexGuard},
+};
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+fn lock_dlerror_mutex() -> LockResult<MutexGuard<'static, ()>> {
+    static DLERROR_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+
+    DLERROR_MUTEX.lock()
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn lock_dlerror_mutex() {}
 
 pub type Handle = *mut c_void;
 
 #[inline]
 pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
-    let _lock = DLERROR_MUTEX.lock();
+    let _lock = lock_dlerror_mutex();
     //clear the dlerror in order to be able to distinguish between NULL pointer and error
     let _ = dlerror();
     let symbol = dlsym(handle, name.as_ptr());
@@ -38,7 +51,7 @@ pub unsafe fn get_sym(handle: Handle, name: &CStr) -> Result<*mut (), Error> {
 
 #[inline]
 pub unsafe fn open_self() -> Result<Handle, Error> {
-    let _lock = DLERROR_MUTEX.lock();
+    let _lock = lock_dlerror_mutex();
     let handle = dlopen(null(), DEFAULT_FLAGS);
     if handle.is_null() {
         Err(Error::OpeningLibraryError(IoError::new(
@@ -63,7 +76,7 @@ pub unsafe fn open_lib(name: &OsStr) -> Result<Handle, Error> {
         v.push(0);
         CStr::from_bytes_with_nul_unchecked(v.as_slice())
     };
-    let _lock = DLERROR_MUTEX.lock();
+    let _lock = lock_dlerror_mutex();
     let handle = dlopen(cstr.as_ptr(), DEFAULT_FLAGS);
     if handle.is_null() {
         Err(Error::OpeningLibraryError(IoError::new(
