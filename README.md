@@ -7,7 +7,7 @@
 [![dependency status](https://deps.rs/repo/github/openbytedev/dlopen2/status.svg)](https://deps.rs/repo/github/openbytedev/dlopen2)
 [![MIT](https://img.shields.io/crates/l/dlopen2.svg)](https://github.com/OpenByteDev/dlopen2/blob/master/LICENSE)
 
-This is a fork of the original, now unmaintained `dlopen` with updated dependencies, bug fixes and some new features.
+This is a fork of the original, now unmaintained [`dlopen`](https://github.com/szymonwieloch/rust-dlopen) with updated dependencies, bug fixes and some new features.
 
 ## Overview
 
