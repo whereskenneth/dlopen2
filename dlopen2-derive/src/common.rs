@@ -1,4 +1,4 @@
-use syn::{Attribute, Data, DeriveInput, Field, Fields, FieldsNamed, Lit, Meta};
+use syn::{Attribute, Data, DeriveInput, Expr, ExprLit, Field, Fields, FieldsNamed, Lit, Meta};
 
 pub fn symbol_name(field: &Field) -> String {
     match find_str_attr_val(field, "dlopen2_name") {
@@ -15,12 +15,14 @@ pub fn symbol_name(field: &Field) -> String {
 
 pub fn find_str_attr_val(field: &Field, attr_name: &str) -> Option<String> {
     for attr in field.attrs.iter() {
-        match attr.parse_meta() {
-            Ok(Meta::NameValue(ref meta)) => {
+        match attr.meta {
+            Meta::NameValue(ref meta) => {
                 if let Some(ident) = meta.path.get_ident() {
                     if ident == attr_name {
-                        return match meta.lit {
-                            Lit::Str(ref val, ..) => Some(val.value()),
+                        return match &meta.value {
+                            Expr::Lit(ExprLit {
+                                lit: Lit::Str(val), ..
+                            }) => Some(val.value()),
                             _ => panic!("{} attribute must be a string", attr_name),
                         };
                     }
@@ -37,7 +39,7 @@ pub fn get_non_marker_attrs(field: &Field) -> Vec<&Attribute> {
         .attrs
         .iter()
         .filter(|attr| {
-            if let Some(ident) = attr.path.get_ident() {
+            if let Some(ident) = attr.path().get_ident() {
                 if ident.to_string().starts_with("dlopen2_") {
                     return false;
                 }
@@ -49,8 +51,8 @@ pub fn get_non_marker_attrs(field: &Field) -> Vec<&Attribute> {
 
 pub fn has_marker_attr(field: &Field, attr_name: &str) -> bool {
     for attr in field.attrs.iter() {
-        match attr.parse_meta() {
-            Ok(Meta::Path(val)) => {
+        match attr.meta {
+            Meta::Path(ref val) => {
                 if let Some(ident) = val.get_ident() {
                     return ident == attr_name;
                 }
