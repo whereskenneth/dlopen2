@@ -51,16 +51,33 @@ fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
     match field.ty {
         Type::BareFn(_) | Type::Reference(_) => {
             if allow_null {
-                panic!("Only pointers can have the '{}' attribute assigned", ALLOW_NULL);
+                panic!(
+                    "Only pointers can have the '{}' attribute assigned",
+                    ALLOW_NULL
+                );
             }
             normal_field(field)
-        },
-        Type::Ptr(ref ptr) => if allow_null {
-            allow_null_field(field, ptr)
-        } else {
-            normal_field(field)
-        },
-        _ => panic!("Only bare functions, references and pointers are allowed in structures implementing WrapperApi trait")
+        }
+        Type::Ptr(ref ptr) => {
+            if allow_null {
+                allow_null_field(field, ptr)
+            } else {
+                normal_field(field)
+            }
+        }
+        Type::Path(ref path) => {
+            assert!(path.qself.is_none());
+            let path = &path.path;
+            assert!(path.leading_colon.is_none());
+            let segments = &path.segments;
+            let segment = segments.first().unwrap();
+            assert!(segment.ident.to_string() == "Option", "Only bare functions, optional bare functions, references and pointers are allowed in structures implementing WrapperApi trait");
+            optional_field(field)
+        }
+        _ => {
+            // dbg!();
+            panic!("Only bare functions, references and pointers are allowed in structures implementing WrapperApi trait")
+        }
     }
 }
 
@@ -95,8 +112,27 @@ fn allow_null_field(field: &Field, ptr: &TypePtr) -> proc_macro2::TokenStream {
     }
 }
 
+fn optional_field(field: &Field) -> proc_macro2::TokenStream {
+    let field_name = &field.ident;
+    let symbol_name = symbol_name(field);
+
+    let tokens = quote! {
+        #field_name : match lib.symbol_cstr(
+            ::std::ffi::CStr::from_bytes_with_nul_unchecked(concat!(#symbol_name, "\0").as_bytes())
+        ) {
+            ::std::result::Result::Ok(val) => Some(val),
+            ::std::result::Result::Err(err) => match err {
+                ::dlopen2::Error::NullSymbol => None,
+                ::dlopen2::Error::SymbolGettingError(_) => None,
+                _ => return ::std::result::Result::Err(err)
+            }
+        }
+    };
+    tokens
+}
+
 fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
-    let ident = &field.ident;
+    let ident = field.ident.as_ref().expect("field must have ident");
     let attrs = get_non_marker_attrs(field);
 
     match field.ty {
@@ -109,7 +145,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
                 let arg_iter = fun
                     .inputs
                     .iter()
-                    .map(|a| fun_arg_to_tokens(a, &ident.as_ref().unwrap().to_string()));
+                    .map(|a| fun_arg_to_tokens(a, &ident.to_string()));
                 let arg_names = fun.inputs.iter().map(|a| match a.name {
                     ::std::option::Option::Some((ref arg_name, _)) => arg_name,
                     ::std::option::Option::None => panic!("This should never happen"),
@@ -126,8 +162,8 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
             let ty = &ref_ty.elem;
             let mut_acc = match ref_ty.mutability {
                 Some(_token) => {
-                    let mut_ident = &format!("{}_mut", ident.as_ref().unwrap());
-                    let method_name = syn::Ident::new(mut_ident, ident.as_ref().unwrap().span());
+                    let mut_ident = &format!("{}_mut", ident);
+                    let method_name = syn::Ident::new(mut_ident, ident.span());
                     Some(quote! {
                         #(#attrs)*
                         pub fn #method_name (&mut self) -> &mut #ty {
@@ -151,6 +187,52 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
             })
         }
         Type::Ptr(_) => None,
+        // For `field: Option<fn(...) -> ...>`
+        Type::Path(ref path) => {
+            let path = &path.path;
+            let segments = &path.segments;
+            let segment = segments.first().unwrap();
+            let args = &segment.arguments;
+            match args {
+                syn::PathArguments::AngleBracketed(args) => {
+                    let args_inner = &args.args;
+                    let token = quote!(# args_inner);
+                    // panic!("{}", token);
+                    let fun = syn::parse::<syn::TypeBareFn>(token.into()).unwrap();
+
+                    if fun.variadic.is_some() {
+                        return None;
+                    } else {
+                        let output = &fun.output;
+                        let output = match output {
+                            syn::ReturnType::Default => quote!(-> Option<()>),
+                            syn::ReturnType::Type(_, ty) => quote!( -> Option<#ty>),
+                        };
+                        let unsafety = &fun.unsafety;
+                        let arg_iter = fun
+                            .inputs
+                            .iter()
+                            .map(|a| fun_arg_to_tokens(a, &ident.to_string()));
+                        let arg_names = fun.inputs.iter().map(|a| match a.name {
+                            ::std::option::Option::Some((ref arg_name, _)) => arg_name,
+                            ::std::option::Option::None => panic!("This should never happen"),
+                        });
+                        let has_ident = quote::format_ident!("has_{}", ident);
+                        return Some(quote! {
+                            #(#attrs)*
+                            pub #unsafety fn #ident (&self, #(#arg_iter),* ) #output {
+                                self.#ident.map(|f| (f)(#(#arg_names),*))
+                            }
+                            #(#attrs)*
+                            pub fn #has_ident (&self) -> bool {
+                                self.#ident.is_some()
+                            }
+                        });
+                    }
+                }
+                _ => panic!("Unknown optional type, this should not happen!"),
+            }
+        }
         _ => panic!("Unknown field type, this should not happen!"),
     }
 }

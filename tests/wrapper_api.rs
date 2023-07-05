@@ -10,7 +10,10 @@ struct Api<'a> {
     rust_fun_print_something: fn(),
     rust_fun_add_one: fn(arg: i32) -> i32,
     c_fun_print_something_else: unsafe extern "C" fn(),
-    c_fun_add_two: unsafe extern "C" fn(arg: c_int) -> c_int,
+    #[dlopen2_name = "c_fun_print_something_else"]
+    c_fun_print_something_else_optional: Option<unsafe extern "C" fn()>,
+    c_fun_add_two: Option<unsafe extern "C" fn(arg: c_int) -> c_int>,
+    c_fun_add_two_not_found: Option<unsafe extern "C" fn(arg: c_int)>,
     rust_i32: &'a i32,
     rust_i32_mut: &'a mut i32,
     #[dlopen2_name = "rust_i32_mut"]
@@ -41,7 +44,10 @@ fn open_play_close_wrapper_api() {
     cont.rust_fun_print_something(); //should not crash
     assert_eq!(cont.rust_fun_add_one(5), 6);
     unsafe { cont.c_fun_print_something_else() }; //should not crash
-    assert_eq!(unsafe { cont.c_fun_add_two(2) }, 4);
+    unsafe { cont.c_fun_print_something_else_optional() };
+    assert!(cont.has_c_fun_print_something_else_optional());
+    assert_eq!(unsafe { cont.c_fun_add_two(2) }, Some(4));
+    assert_eq!(unsafe { cont.c_fun_add_two_not_found(2) }, None);
     assert_eq!(43, *cont.rust_i32());
     assert_eq!(42, *cont.rust_i32_mut_mut());
     *cont.rust_i32_mut_mut() = 55; //should not crash
