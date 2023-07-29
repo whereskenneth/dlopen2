@@ -205,8 +205,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
             let segments = &path.segments;
             let segment = segments
                 .iter()
-                .filter(|segment| segment.ident == "Option")
-                .next()
+                .find(|segment| segment.ident == "Option")
                 .unwrap();
             let args = &segment.arguments;
             match args {
