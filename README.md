@@ -1,6 +1,5 @@
 # dlopen2
 
-
 [![CI](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenByteDev/dlopen2/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/dlopen2.svg)](https://crates.io/crates/dlopen2)
 [![Documentation](https://docs.rs/dlopen2/badge.svg)](https://docs.rs/dlopen2)
@@ -25,14 +24,24 @@ struct Api<'a> {
     example_rust_fun: fn(arg: i32) -> u32,
     example_c_fun: unsafe extern "C" fn(),
     example_reference: &'a mut i32,
+    // A function or field may not always exist in the library.
+    example_c_fun_option: Option<unsafe extern "C" fn()>,
+    example_reference_option:  Option<&'a mut i32>,
 }
 
 fn main(){
     let mut cont: Container<Api> =
         unsafe { Container::load("libexample.so") }.expect("Could not open library or load symbols");
     cont.example_rust_fun(5);
-    unsafe{cont.example_c_fun()};
+    unsafe{ cont.example_c_fun() };
     *cont.example_reference_mut() = 5;
+    
+    // Optional functions return Some(result) if the function is present or None if absent.
+    unsafe{ cont.example_c_fun_option() };
+    // Optional fields are Some(value) if present and None if absent.
+    if let Some(example_reference) = &mut cont.example_reference_option {
+        *example_reference = 5;
+    }
 }
 ```
 
@@ -51,20 +60,20 @@ fn main(){
     structure that represents an API. The rest happens automatically and requires only minimal amount of code.
 * Automatic loading of symbols helps you to follow the DRY paradigm.
 
-## Compare with other libraries
+## Comparison with other libraries
 
-|Feature                             | dlopen2     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
+| Feature                            | dlopen2    | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
 |------------------------------------|------------|---------------------------------------------------------|-------------------------------------------------|
 | Basic functionality                | Yes        | Yes        | Yes       |
 | Multiplatform                      | Yes        | Yes        | Yes       |
-|Dangling symbol prevention          | Yes        | Yes        | Yes       |
-| Thread safety                      | Yes        | **Potential problem with thread-safety of `dlerror()` on some platforms like FreeBSD** | **No support for SetErrorMode (library may block the application on Windows)**|
-| Loading of symbols into structures | Yes        | **No**     | **No**
+| Dangling symbol prevention         | Yes        | Yes        | Yes       |
+| Thread safety                      | Yes        | **Potential problem with thread-safety of `dlerror()` on some platforms like FreeBSD** | **No support for SetErrorMode (library may block the application on Windows)** |
+| Loading of symbols into structures | Yes        | **No**     | **No** |
 | Overhead                           | Minimal    | Minimal    | **Some overhead** |
 | Low-level, unsafe API              | Yes        | Yes        | Yes       |
 | Object-oriented friendly           | Yes        | **No**       | Yes     |
 | Load from the program itself       | Yes        | **No**       | **No**  |
-| Obtaining address information (dladdr) | Yes    |  **Unix only** | **No**|
+| Obtaining address information (dladdr) | Yes    |  **Unix only** | **No** |
 
 ## Safety
 
@@ -78,7 +87,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen2 = "0.4"
+dlopen2 = "0.5"
 ```
 
 ## Documentation
@@ -87,11 +96,11 @@ dlopen2 = "0.4"
 
 ## License
 
-This code is licensed under [MIT](./LICENSE) license.
+This code is licensed under the [MIT](./LICENSE) license.
 
 ## Changelog
 
-[GitHub changelog](https://github.com/ahmed-masud/dlopen2/releases)
+[GitHub changelog](https://github.com/OpenByteDev/dlopen2/releases)
 
 ## Acknowledgement
 
