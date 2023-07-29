@@ -12,25 +12,30 @@ I hope that this library will help you to quickly get what you need and avoid er
 
 ```no_run
 use dlopen2::wrapper::{Container, WrapperApi};
-use std::os::raw::c_int;
 
 #[derive(WrapperApi)]
 struct Api<'a> {
     example_rust_fun: fn(arg: i32) -> u32,
     example_c_fun: unsafe extern "C" fn(),
-    // A function may not exist in the library.
-    example_c_option_fun: Option<unsafe extern "C" fn() -> c_int>,
     example_reference: &'a mut i32,
+    // A function or field may not always exist in the library.
+    example_c_fun_option: Option<unsafe extern "C" fn()>,
+    example_reference_option: Option<&'a mut i32>,
 }
 
-fn main(){
+fn main() {
     let mut cont: Container<Api> =
         unsafe { Container::load("libexample.so") }.expect("Could not open library or load symbols");
     cont.example_rust_fun(5);
-    unsafe{cont.example_c_fun()};
-    // option function returns Option<fn_return_type>, it's Option<c_int> here.
-    unsafe{cont.example_c_option_fun().map(|i| i == 0)};
+    unsafe { cont.example_c_fun() };
     *cont.example_reference_mut() = 5;
+
+    // Optional functions return Some(result) if the function is present or None if absent.
+    unsafe { cont.example_c_fun_option() };
+    // Optional fields are Some(value) if present and None if absent.
+    if let Some(example_reference) = cont.example_reference_option() {
+        *example_reference = 5;
+    }
 }
 ```
 

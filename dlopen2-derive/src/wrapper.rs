@@ -1,6 +1,6 @@
 use super::common::{get_fields, get_non_marker_attrs, has_marker_attr, symbol_name};
 use quote::quote;
-use syn::{self, BareFnArg, DeriveInput, Field, Type, TypePtr, Visibility};
+use syn::{self, BareFnArg, DeriveInput, Field, GenericArgument, Type, TypePtr, Visibility};
 
 const ALLOW_NULL: &str = "dlopen2_allow_null";
 const TRAIT_NAME: &str = "WrapperApi";
@@ -66,13 +66,22 @@ fn field_to_tokens(field: &Field) -> proc_macro2::TokenStream {
             }
         }
         Type::Path(ref path) => {
-            assert!(path.qself.is_none());
             let path = &path.path;
-            assert!(path.leading_colon.is_none());
-            let segments = &path.segments;
-            let segment = segments.first().unwrap();
-            assert!(segment.ident.to_string() == "Option", "Only bare functions, optional bare functions, references and pointers are allowed in structures implementing WrapperApi trait");
-            optional_field(field)
+            let segments_string: Vec<String> = path
+                .segments
+                .iter()
+                .map(|segment| segment.ident.to_string())
+                .collect();
+            let segments_str: Vec<&str> = segments_string
+                .iter()
+                .map(|segment| segment.as_str())
+                .collect();
+            match (path.leading_colon.is_some(), segments_str.as_slice()) {
+                (_, ["core" | "std", "option", "Option"]) | (false, ["option", "Option"]) | (false, ["Option"]) => {
+                    optional_field(field)
+                }
+                _ => panic!("Only bare functions, optional bare functions, references and pointers are allowed in structures implementing WrapperApi trait")
+            }
         }
         _ => {
             // dbg!();
@@ -132,7 +141,10 @@ fn optional_field(field: &Field) -> proc_macro2::TokenStream {
 }
 
 fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
-    let ident = field.ident.as_ref().expect("field must have ident");
+    let ident = field
+        .ident
+        .as_ref()
+        .expect("Fields must have idents (tuple structs are not supported)");
     let attrs = get_non_marker_attrs(field);
 
     match field.ty {
@@ -148,7 +160,7 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
                     .map(|a| fun_arg_to_tokens(a, &ident.to_string()));
                 let arg_names = fun.inputs.iter().map(|a| match a.name {
                     ::std::option::Option::Some((ref arg_name, _)) => arg_name,
-                    ::std::option::Option::None => panic!("This should never happen"),
+                    ::std::option::Option::None => unreachable!(),
                 });
                 Some(quote! {
                     #(#attrs)*
@@ -191,49 +203,76 @@ fn field_to_wrapper(field: &Field) -> Option<proc_macro2::TokenStream> {
         Type::Path(ref path) => {
             let path = &path.path;
             let segments = &path.segments;
-            let segment = segments.first().unwrap();
+            let segment = segments
+                .iter()
+                .filter(|segment| segment.ident == "Option")
+                .next()
+                .unwrap();
             let args = &segment.arguments;
             match args {
-                syn::PathArguments::AngleBracketed(args) => {
-                    let args_inner = &args.args;
-                    let token = quote!(# args_inner);
-                    // panic!("{}", token);
-                    let fun = syn::parse::<syn::TypeBareFn>(token.into()).unwrap();
-
-                    if fun.variadic.is_some() {
-                        return None;
-                    } else {
-                        let output = &fun.output;
-                        let output = match output {
-                            syn::ReturnType::Default => quote!(-> Option<()>),
-                            syn::ReturnType::Type(_, ty) => quote!( -> Option<#ty>),
-                        };
-                        let unsafety = &fun.unsafety;
-                        let arg_iter = fun
-                            .inputs
-                            .iter()
-                            .map(|a| fun_arg_to_tokens(a, &ident.to_string()));
-                        let arg_names = fun.inputs.iter().map(|a| match a.name {
-                            ::std::option::Option::Some((ref arg_name, _)) => arg_name,
-                            ::std::option::Option::None => panic!("This should never happen"),
-                        });
-                        let has_ident = quote::format_ident!("has_{}", ident);
-                        return Some(quote! {
-                            #(#attrs)*
-                            pub #unsafety fn #ident (&self, #(#arg_iter),* ) #output {
-                                self.#ident.map(|f| (f)(#(#arg_names),*))
-                            }
-                            #(#attrs)*
-                            pub fn #has_ident (&self) -> bool {
-                                self.#ident.is_some()
-                            }
-                        });
+                syn::PathArguments::AngleBracketed(args) => match args.args.first().unwrap() {
+                    GenericArgument::Type(Type::BareFn(fun)) => {
+                        if fun.variadic.is_some() {
+                            None
+                        } else {
+                            let output = &fun.output;
+                            let output = match output {
+                                syn::ReturnType::Default => quote!(-> Option<()>),
+                                syn::ReturnType::Type(_, ty) => quote!( -> Option<#ty>),
+                            };
+                            let unsafety = &fun.unsafety;
+                            let arg_iter = fun
+                                .inputs
+                                .iter()
+                                .map(|a| fun_arg_to_tokens(a, &ident.to_string()));
+                            let arg_names = fun.inputs.iter().map(|a| match a.name {
+                                ::std::option::Option::Some((ref arg_name, _)) => arg_name,
+                                ::std::option::Option::None => unreachable!(),
+                            });
+                            let has_ident = quote::format_ident!("has_{}", ident);
+                            Some(quote! {
+                                #(#attrs)*
+                                pub #unsafety fn #ident (&self, #(#arg_iter),* ) #output {
+                                    self.#ident.map(|f| (f)(#(#arg_names),*))
+                                }
+                                #(#attrs)*
+                                pub fn #has_ident (&self) -> bool {
+                                    self.#ident.is_some()
+                                }
+                            })
+                        }
                     }
-                }
-                _ => panic!("Unknown optional type, this should not happen!"),
+                    GenericArgument::Type(Type::Reference(ref_ty)) => {
+                        let ty = &ref_ty.elem;
+                        match ref_ty.mutability {
+                            Some(_token) => {
+                                let mut_ident = &format!("{}", ident);
+                                let method_name = syn::Ident::new(mut_ident, ident.span());
+                                Some(quote! {
+                                    #(#attrs)*
+                                    pub fn #method_name (&mut self) -> ::core::option::Option<&mut #ty> {
+                                        if let Some(&mut ref mut val) = self.#ident {
+                                            Some(val)
+                                        } else {
+                                            None
+                                        }
+                                    }
+                                })
+                            }
+                            None => Some(quote! {
+                                #(#attrs)*
+                                pub fn #ident (&self) -> ::core::option::Option<& #ty> {
+                                    self.#ident
+                                }
+                            }),
+                        }
+                    }
+                    _ => panic!("Unsupported field type"),
+                },
+                _ => panic!("Unknown optional type!"),
             }
         }
-        _ => panic!("Unknown field type, this should not happen!"),
+        _ => panic!("Unsupported field type"),
     }
 }
 

@@ -18,6 +18,9 @@ struct Api<'a> {
     rust_i32_mut: &'a mut i32,
     #[dlopen2_name = "rust_i32_mut"]
     rust_i32_ptr: *const i32,
+    #[dlopen2_name = "rust_i32"]
+    rust_i32_optional: Option<&'a i32>,
+    rust_i32_not_found: Option<&'a i32>,
     c_int: &'a c_int,
     c_struct: &'a SomeData,
     rust_str: &'a &'static str,
@@ -41,25 +44,29 @@ fn open_play_close_wrapper_api() {
     let mut cont: Container<Api> =
         unsafe { Container::load(lib_path) }.expect("Could not open library or load symbols");
 
-    cont.rust_fun_print_something(); //should not crash
+    cont.rust_fun_print_something(); // should not crash
     assert_eq!(cont.rust_fun_add_one(5), 6);
-    unsafe { cont.c_fun_print_something_else() }; //should not crash
+    unsafe { cont.c_fun_print_something_else() }; // should not crash
     unsafe { cont.c_fun_print_something_else_optional() };
     assert!(cont.has_c_fun_print_something_else_optional());
     assert_eq!(unsafe { cont.c_fun_add_two(2) }, Some(4));
+    assert!(!cont.has_c_fun_add_two_not_found());
     assert_eq!(unsafe { cont.c_fun_add_two_not_found(2) }, None);
     assert_eq!(43, *cont.rust_i32());
     assert_eq!(42, *cont.rust_i32_mut_mut());
-    *cont.rust_i32_mut_mut() = 55; //should not crash
+    *cont.rust_i32_mut_mut() = 55; // should not crash
     assert_eq!(55, unsafe { *cont.rust_i32_ptr() });
-    //the same with C
-    assert_eq!(45, *cont.c_int());
-    //now static c struct
+    assert_eq!(cont.rust_i32_optional(), Some(&43));
+    assert_eq!(cont.rust_i32_not_found(), None);
 
+    // the same with C
+    assert_eq!(45, *cont.c_int());
+
+    // now static c struct
     assert_eq!(1, cont.c_struct().first);
     assert_eq!(2, cont.c_struct().second);
-    //let's play with strings
 
+    // let's play with strings
     assert_eq!("Hello!", *cont.rust_str());
     let converted = cont.c_const_str().to_str().unwrap();
     assert_eq!(converted, "Hi!");
