@@ -12,11 +12,14 @@ I hope that this library will help you to quickly get what you need and avoid er
 
 ```no_run
 use dlopen2::wrapper::{Container, WrapperApi};
+use std::os::raw::c_int;
 
 #[derive(WrapperApi)]
 struct Api<'a> {
     example_rust_fun: fn(arg: i32) -> u32,
     example_c_fun: unsafe extern "C" fn(),
+    // A function may not exist in the library.
+    example_c_option_fun: Option<unsafe extern "C" fn() -> c_int>,
     example_reference: &'a mut i32,
 }
 
@@ -25,6 +28,8 @@ fn main(){
         unsafe { Container::load("libexample.so") }.expect("Could not open library or load symbols");
     cont.example_rust_fun(5);
     unsafe{cont.example_c_fun()};
+    // option function returns Option<fn_return_type>, it's Option<c_int> here.
+    unsafe{cont.example_c_option_fun().map(|i| i == 0)};
     *cont.example_reference_mut() = 5;
 }
 ```
@@ -46,11 +51,11 @@ fn main(){
 
 ## Compare with other libraries
 
-|Feature                             | dlopen2     | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
+| Feature                            | dlopen2    | [libloading](https://github.com/nagisa/rust_libloading) | [sharedlib](https://github.com/Tyleo/sharedlib) |
 |------------------------------------|------------|---------------------------------------------------------|-------------------------------------------------|
 | Basic functionality                | Yes        | Yes        | Yes       |
 | Multiplatform                      | Yes        | Yes        | Yes       |
-|Dangling symbol prevention          | Yes        | Yes        | Yes       |
+| Dangling symbol prevention         | Yes        | Yes        | Yes       |
 | Thread safety                      | Yes        | **Potential problem with thread-safety of `dlerror()` on some platforms like FreeBSD** | **No support for SetErrorMode (library may block the application on Windows)**|
 | Loading of symbols into structures | Yes        | **No**     | **No**
 | Overhead                           | Minimal    | Minimal    | **Some overhead** |
