@@ -81,7 +81,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-dlopen2 = "0.5"
+dlopen2 = "0.6"
 ```
 
 # Documentation
