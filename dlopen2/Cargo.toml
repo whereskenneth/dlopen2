@@ -11,6 +11,7 @@ keywords = [
 license = "MIT"
 repository = "https://github.com/OpenByteDev/dlopen2"
 edition = "2021"
+readme = "../README.md"
 
 [dependencies]
 dlopen2_derive = { path = "../dlopen2-derive", version = "0.4", optional = true }
